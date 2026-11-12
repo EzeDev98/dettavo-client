@@ -11,7 +11,7 @@ export default {
     'declaration-property-value-allowed-list': {
       '/^text-decoration(-line)?$/': ['none'],
       'font-weight': ['/^var\\(--font-weight\\)$/', 'inherit'],
-      '/^border(-[a-z]+)*-radius$/': ['/^var\\(--radius(-sm)?\\)$/', '0', '50%', 'inherit'],
+      '/^border(-[a-z]+)*-radius$/': ['/^var\\(--radius(-sm)?\\)$/', 'var(--menu-radius)', '0', '50%', 'inherit'],
     },
 
     // Only the shared layout positions a screen vertically.

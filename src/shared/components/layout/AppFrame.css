@@ -1,0 +1,9 @@
+/* The window: the screen fills it and the footer (the status bar) sits at the bottom, as in the prototype's
+   .app grid. The one place the app sizes itself to the viewport. */
+.ui-app-frame {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 100dvh;
+}
+
+.ui-app-frame__main { min-height: 0; }

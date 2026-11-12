@@ -1,0 +1,30 @@
+/* The prototype's status bar: surface, a line above, extra-small muted text. */
+.status-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap);
+  padding: calc(var(--gap) / 2) var(--gutter);
+  background: var(--color-surface);
+  border-top: var(--border-width) solid var(--color-line);
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+  color: var(--color-text-muted);
+}
+
+.status-bar__connection { display: inline-flex; align-items: center; }
+
+.status-bar__dot {
+  display: inline-block;
+  flex: none;
+  width: var(--status-dot-size);
+  height: var(--status-dot-size);
+  margin-right: calc(var(--gap) * 0.75);
+  border-radius: 50%;
+  background: var(--color-text-muted);
+}
+
+.status-bar__dot--connected { background: var(--color-connected); }
+.status-bar__dot--down { background: var(--color-error); }
+
+.status-bar__spacer { flex: 1; }

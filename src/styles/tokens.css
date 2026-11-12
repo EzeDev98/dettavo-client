@@ -1,0 +1,149 @@
+/* Dettavo design tokens. Ahorra's three layers; nothing else in the app holds a colour, size or duration.
+   1. Palette    raw values from the approved prototype. Dark only. Only layer 2 reads these.
+   2. Semantic   meaning. Points straight at the dark palette (no light-dark()).
+   3. Component  sizes and spacing of the building blocks: Ahorra's, plus the editor's. */
+
+:root {
+  color-scheme: dark;
+
+  /* ---------- 1. Palette ---------- */
+  --p-bg: #1e1e1e;
+  --p-surface: #252526;
+  --p-raise: #2d2d30;
+  --p-raise-hover: #333337;
+  --p-line: #3c3c3c;
+  --p-field: #6b6b6b;
+  --p-text: #d4d4d4;
+  --p-muted: #8b8b8b;
+  --p-white: #ffffff;
+  --p-black: #000000;
+
+  --p-blue-600: #2f6fc6;
+  --p-blue-500: #3a7bd6;
+  --p-blue-300: #7ab0f5;
+  --p-red-300: #f48771;
+  --p-amber-300: #e5a06a;
+  --p-green-300: #5fc4a2;
+
+  --p-wave: #a9aeb7;
+  --p-wave-bg: #1b1b1c;
+  --p-stage: #161616;
+
+  --p-selection: rgba(47, 111, 198, 0.5);
+  --p-current-word: rgba(122, 176, 245, 0.2);
+  --p-focus-tint: rgba(122, 176, 245, 0.3);
+  --p-hover: rgba(255, 255, 255, 0.06);
+  --p-removed: rgba(244, 135, 113, 0.13);
+  --p-cut-band: rgba(244, 135, 113, 0.12);
+  --p-selection-band: rgba(47, 111, 198, 0.35);
+  --p-pause-long: rgba(229, 160, 106, 0.1);
+  --p-pause-trimmed: rgba(95, 196, 162, 0.1);
+  --p-scrim: rgba(0, 0, 0, 0.5);
+
+  /* ---------- 2. Semantic ---------- */
+  --color-bg: var(--p-bg);
+  --color-surface: var(--p-surface);
+  --color-raise: var(--p-raise);
+  --color-raise-hover: var(--p-raise-hover);
+  --color-text: var(--p-text);
+  --color-text-muted: var(--p-muted);
+  --color-line: var(--p-line);
+  --color-field-line: var(--p-field);
+  --color-brand: var(--p-blue-600);
+  --color-brand-hover: var(--p-blue-500);
+  --color-on-brand: var(--p-white);
+  --color-accent: var(--p-blue-300);
+  --color-hover: var(--p-hover);
+  --color-focus-tint: var(--p-focus-tint);
+  --color-scrim: var(--p-scrim);
+  --color-menu: var(--p-black);
+  --color-stage: var(--p-stage);
+
+  /* States. Always paired with a word or icon, never colour alone. */
+  --color-error: var(--p-red-300);
+  --color-connected: var(--p-green-300);
+  --color-under: var(--p-green-300);  /* Ahorra's "good" state: success toasts, Bar */
+  --color-over: var(--p-amber-300);   /* Ahorra's "watch out" state: Bar */
+
+  /* Editor */
+  --color-selection: var(--p-selection);
+  --color-selection-band: var(--p-selection-band);
+  --color-current-word: var(--p-current-word);
+  --color-removed: var(--p-red-300);
+  --color-removed-tint: var(--p-removed);
+  --color-cut-band: var(--p-cut-band);
+  --color-pause-long: var(--p-amber-300);
+  --color-pause-long-tint: var(--p-pause-long);
+  --color-pause-trimmed: var(--p-green-300);
+  --color-pause-trimmed-tint: var(--p-pause-trimmed);
+  --color-waveform: var(--p-wave);
+  --color-waveform-bg: var(--p-wave-bg);
+  --color-waveform-cut: var(--p-red-300);
+  --color-playhead: var(--p-text);
+
+  --font-family: "Red Hat Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-weight: 400;
+
+  --text-xs: 12px;     --leading-xs: 16px;
+  --text-sm: 14px;     --leading-sm: 20px;
+  --text-md: 16px;     --leading-md: 24px;
+  --text-lg: 20px;     --leading-lg: 28px;
+
+  --border-width: 0.5px;
+  --radius: 4px;
+  --radius-sm: 3px;
+  --menu-radius: 2px;  /* dropdowns, their menus and the transcript's pause chips */
+
+  --focus-border: var(--color-accent);
+  --focus-ring-color: var(--color-focus-tint);
+  --focus-ring-size: 3px;
+
+  --motion-fast: 160ms;
+  --motion-base: 260ms;
+  --motion-fly: 440ms;
+  --motion-stagger: 70ms;
+  --motion-reduced: 120ms;
+  --motion-hover: 120ms; /* colour fade on hover, nothing moves */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* ---------- 3. Component ---------- */
+  --button-height: 28px;        /* Dettavo's buttons, icon buttons, dropdown buttons and Fit */
+  --button-height-export: 32px; /* the top bar's Export and the export dialog's buttons */
+  --button-height-block: 42px;
+  --button-pad-x: 12px;
+  --input-height: 40px;
+  --icon-button-size: 28px;
+  --icon-button-hit: 6px;
+  --icon-size: 18px;
+  --icon-stroke: 1.4;
+  --opacity-disabled: 0.4;
+  --card-pad: 12px;
+  --gap: 8px;
+  --gutter: 16px;
+  --content-width: 560px;
+  --drawer-width: 280px;
+  --modal-width: 400px;
+  --z-menu: 60;
+  --z-overlay: 80;
+  --z-toast: 100;
+
+  /* Editor */
+  --menu-pad: 4px;
+  --menu-offset: 4px;
+  --menu-option-height: 32px;
+  --pane-header-height: 48px;
+  --tab-underline: 2px;
+  --transcript-measure: 680px;
+  --paragraph-time-column: 52px;
+  --waveform-height: 112px;
+  --ruler-height: 24px;
+  --playhead-width: 2px;
+  --progress-height: 4px;
+  --status-dot-size: 8px;
+}
+
+/* Reduced motion: hover changes colour at once. */
+@media (prefers-reduced-motion: reduce) {
+  :root { --motion-hover: 0ms; }
+}

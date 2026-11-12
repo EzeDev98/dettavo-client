@@ -1,0 +1,82 @@
+.ui-dropdown {
+  position: relative;
+  display: inline-flex;
+}
+
+.ui-dropdown__button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap);
+  height: var(--button-height);
+  padding: 0 var(--gap) 0 var(--button-pad-x);
+  border: var(--border-width) solid var(--color-field-line);
+  border-radius: var(--menu-radius);
+  background: var(--color-raise);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    background-color var(--motion-hover) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard);
+}
+
+@media (hover: hover) {
+  .ui-dropdown__button:hover:not(:disabled) { background: var(--color-raise-hover); }
+  .ui-dropdown__option:hover { background: var(--color-hover); }
+}
+
+.ui-dropdown__button:focus-visible {
+  border-color: var(--focus-border);
+  box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-ring-color);
+}
+
+.ui-dropdown__button:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.ui-dropdown__chevron {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  stroke-width: var(--icon-stroke);
+  color: var(--color-text-muted);
+}
+
+.ui-dropdown__menu {
+  position: absolute;
+  top: calc(100% + var(--menu-offset));
+  left: 0;
+  z-index: var(--z-menu);
+  display: grid;
+  min-width: 100%;
+  padding: var(--menu-pad);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--menu-radius);
+  background: var(--color-menu);
+}
+
+.ui-dropdown--up .ui-dropdown__menu {
+  top: auto;
+  bottom: calc(100% + var(--menu-offset));
+}
+
+.ui-dropdown__option {
+  height: var(--menu-option-height);
+  padding: 0 var(--button-pad-x);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--menu-radius);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  text-align: start;
+  white-space: nowrap;
+}
+
+.ui-dropdown__option[aria-selected="true"] { color: var(--color-accent); }
+
+.ui-dropdown__option:focus-visible {
+  border-color: var(--focus-border);
+  box-shadow: none;
+  background: var(--color-hover);
+}

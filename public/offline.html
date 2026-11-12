@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dettavo</title>
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#1e1e1e" />
+    <!-- The build replaces the next line with the app's built stylesheet links, so this page uses the same tokens. -->
+    <!--dettavo:styles-->
+    <style>
+      .offline {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: calc(var(--gap) / 2);
+        min-height: 100dvh;
+        padding: var(--gutter);
+        text-align: center;
+      }
+      .offline__logo {
+        margin-bottom: var(--gutter);
+        color: var(--color-accent);
+        font-size: var(--text-md);
+        line-height: var(--leading-md);
+      }
+      .offline__icon {
+        width: calc(var(--icon-size) * 1.5);
+        height: calc(var(--icon-size) * 1.5);
+        margin-bottom: calc(var(--gap) / 2);
+        color: var(--color-text-muted);
+        stroke-width: var(--icon-stroke);
+      }
+      .offline__title { font-size: var(--text-md); line-height: var(--leading-md); }
+      .offline__text {
+        max-width: var(--content-width);
+        font-size: var(--text-sm);
+        line-height: var(--leading-sm);
+        color: var(--color-text-muted);
+      }
+      .offline__command {
+        margin-top: var(--gap);
+        padding: var(--gap) var(--card-pad);
+        background: var(--color-raise);
+        border: var(--border-width) solid var(--color-line);
+        border-radius: var(--radius);
+        color: var(--color-text);
+        font-family: inherit;
+        font-size: var(--text-xs);
+        line-height: var(--leading-xs);
+        user-select: all;
+      }
+      .offline__retry {
+        margin-top: var(--gutter);
+        height: var(--button-height);
+        padding: 0 var(--button-pad-x);
+        border: var(--border-width) solid transparent;
+        border-radius: var(--radius);
+        background: var(--color-brand);
+        color: var(--color-on-brand);
+        font-size: var(--text-sm);
+        line-height: 1;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="offline" role="alert">
+      <span class="offline__logo">Dettavo</span>
+      <svg class="offline__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 2h13a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-5" />
+        <path d="M10 10 2.5 2.5C2 2 2 2.5 2 5v3a2 2 0 0 0 2 2h6z" />
+        <path d="M22 17v-1a2 2 0 0 0-2-2h-1" />
+        <path d="M4 14a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16.5l1-.5.5.5-8-8H4z" />
+        <path d="M6 18h.01" />
+        <path d="m2 2 20 20" />
+      </svg>
+      <p class="offline__title">Dettavo's local service isn't running</p>
+      <p class="offline__text">Start the app in dettavo-client. This page tries again every 3 seconds.</p>
+      <code class="offline__command">npm run preview</code>
+      <button type="button" class="offline__retry" onclick="location.reload()">Try again</button>
+    </main>
+    <script>
+      // Reload as soon as the client answers again. '/' is not precached, so this always asks the network.
+      setInterval(function () {
+        fetch('/', { cache: 'no-store' }).then(function (response) { if (response.ok) location.reload(); }).catch(function () {});
+      }, 3000);
+    </script>
+  </body>
+</html>
