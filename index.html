@@ -9,9 +9,41 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="preload" href="/icons/icon-512.png" as="image" />
+    <link rel="preload" href="/fonts/red-hat-text-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- The loading screen below, styled here so it looks the same in dev (where the stylesheet arrives with the script) as in production. Same values as LoadingScreen.css and tokens.css: change them together. -->
+    <style>
+      :root { color-scheme: dark; --s-bg: #1e1e1e; --s-text: #8b8b8b; --s-dot: #c4a1ff; }
+      html { background: var(--s-bg); }
+      body { margin: 0; }
+      .loading-screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: var(--s-bg); }
+      .loading-screen__logo { width: 151px; height: 151px; }
+      .loading-screen__tagline { margin: 0; font: 400 16px/24px "Red Hat Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--s-text); text-align: center; }
+      .loading-screen__dots { display: inline-flex; gap: 8px; }
+      .loading-screen__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--s-dot); opacity: 0.3; animation: loading-dot 1500ms cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+      .loading-screen__dot:nth-child(1) { animation-delay: var(--loader-phase, 0ms); }
+      .loading-screen__dot:nth-child(2) { animation-delay: calc(var(--loader-phase, 0ms) + 500ms); }
+      .loading-screen__dot:nth-child(3) { animation-delay: calc(var(--loader-phase, 0ms) + 1000ms); }
+      @keyframes loading-dot { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.85); } 40% { opacity: 1; transform: scale(1); } }
+      @media (prefers-reduced-motion: reduce) { .loading-screen__dot { animation: none; opacity: 0.6; } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Shown until the app mounts. Keep identical to LoadingScreen.jsx so the hand-over is invisible. -->
+      <div class="loading-screen" role="status" aria-label="Loading Dettavo"><img class="loading-screen__logo" src="/icons/icon-512.png" alt="" width="512" height="512" /><p class="loading-screen__tagline">Edit a recording by editing its words.</p><span class="loading-screen__dots" aria-hidden="true"><span class="loading-screen__dot"></span><span class="loading-screen__dot"></span><span class="loading-screen__dot"></span></span></div>
+    </div>
+    <script>
+      // Marks when this loading screen first showed: the start holds it for a minimum time counted from here (StartupGate.jsx).
+      // It also starts the dots on the page clock, so the React copy that replaces this one carries on in step.
+      // 1500 is one dot cycle: same as DOT_CYCLE_MS in loadingContent.js and --splash-dot-cycle in tokens.css.
+      (function () {
+        var now = performance.now();
+        window.__loadingShownAt = now;
+        var screen = document.querySelector('.loading-screen');
+        if (screen) screen.style.setProperty('--loader-phase', -(now % 1500) + 'ms');
+      })();
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

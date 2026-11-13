@@ -87,9 +87,11 @@ const selectedIds = (state) => {
   return tokens.slice(selection.first, selection.last + 1).map((token) => token.id);
 };
 
-// Remove is possible while some selected token is still kept or only trimmed; Restore while some is removed or trimmed.
+// Remove is possible while some selected token is still kept or only trimmed. Cut tokens are not in the transcript
+// (they come back from the Cuts list), so the transcript's Restore only undoes trims: a selection that spans a cut
+// never brings the hidden cut back.
 export const canRemove = (state) => selectedIds(state).some((id) => !state.removed.has(id) || state.trims.has(id));
-export const canRestore = (state) => selectedIds(state).some((id) => state.removed.has(id) || state.trims.has(id));
+export const canRestore = (state) => selectedIds(state).some((id) => state.trims.has(id));
 
 // Removing a pause clears its trim: the two are never both set (rule 3).
 function removeIds(state, ids) {
@@ -173,18 +175,17 @@ export function editorReducer(state, action) {
     case 'seek':
       return { ...state, seekRequest: { timelineMs: Math.max(0, action.timelineMs), number: state.seekRequest.number + 1 } };
 
+    // The removed words leave the transcript, so the selection goes with them: nothing hidden stays selected.
     case 'removeSelection':
-      return canRemove(state) ? removeIds(state, selectedIds(state)) : state;
+      return canRemove(state) ? { ...removeIds(state, selectedIds(state)), selection: null } : state;
 
     case 'restoreSelection':
-      return canRestore(state) ? restoreIds(state, selectedIds(state)) : state;
+      return canRestore(state) ? restoreIds(state, selectedIds(state).filter((id) => state.trims.has(id))) : state;
 
-    // Delete and Backspace: restore when every selected token is already removed, otherwise remove (guide 8.10).
-    case 'toggleSelection': {
-      const ids = selectedIds(state);
-      if (!ids.length) return state;
-      return ids.every((id) => state.removed.has(id)) ? restoreIds(state, ids) : removeIds(state, ids);
-    }
+    // Delete and Backspace remove the selection. Cut words are not in the transcript, so there is nothing selected to
+    // restore this way: they come back from the Cuts list, or with Undo.
+    case 'toggleSelection':
+      return canRemove(state) ? { ...removeIds(state, selectedIds(state)), selection: null } : state;
 
     // A row's Restore in the Cuts list: the cut's tokens come back.
     case 'restoreTokens':

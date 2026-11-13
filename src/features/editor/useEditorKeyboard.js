@@ -5,12 +5,29 @@ import { useEditor } from './editorContext.js';
 const elsewhere = (target) => target instanceof HTMLElement
   && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) || Boolean(target.closest('[role="dialog"]')));
 
-// The editor's keys (guide 8.10): Delete or Backspace removes the selection (or restores it when all of it is
-// removed), ⌘Z or Ctrl+Z undoes, ⌘⇧Z, ⌘Y or Ctrl+Y redoes, Escape clears the selection, and Space plays or pauses
-// (not while a button has focus, which Space presses). A key already handled by a menu, a dialog or a field is left
-// alone. player: the PlaybackEngine.
+// The selected words as plain text: words joined by spaces, a blank line where a paragraph or a clip changes. Pauses
+// and cut words are left out, as the transcript shows them. cutIds: the tokens of every REMOVE cut.
+function selectionText(tokens, selection, cutIds) {
+  let text = '';
+  let paragraph = null;
+  for (let index = selection.first; index <= selection.last; index += 1) {
+    const token = tokens[index];
+    if (token.kind !== 'word' || cutIds.has(token.id)) continue;
+    const where = `${token.clipId}:${token.paragraphId}`;
+    if (text) text += where === paragraph ? ' ' : '\n\n';
+    text += token.text;
+    paragraph = where;
+  }
+  return text;
+}
+
+// The editor's keys (guide 8.10): Delete or Backspace removes the selection, ⌘Z or Ctrl+Z undoes, ⌘⇧Z, ⌘Y or Ctrl+Y
+// redoes, Escape clears the selection, and Space plays or pauses (not while a button has focus, which Space presses).
+// A key already handled by a menu, a dialog or a field is left alone. ⌘C (or Edit, Copy) copies the selected words.
+// player: the PlaybackEngine.
 export default function useEditorKeyboard(player) {
-  const { dispatch } = useEditor();
+  const { state, dispatch, cutIds } = useEditor();
+  const { tokens, selection } = state;
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -38,4 +55,19 @@ export default function useEditorKeyboard(player) {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [dispatch, player]);
+
+  // The transcript has no browser text selection (it is Dettavo's own), so copying is done here. Text selected the
+  // browser's way elsewhere (an error message, a field) is left to the browser.
+  useEffect(() => {
+    const onCopy = (event) => {
+      if (!selection || elsewhere(document.activeElement)) return;
+      if (document.getSelection()?.toString()) return;
+      const text = selectionText(tokens, selection, cutIds);
+      if (!text) return;
+      event.preventDefault();
+      event.clipboardData.setData('text/plain', text);
+    };
+    document.addEventListener('copy', onCopy);
+    return () => document.removeEventListener('copy', onCopy);
+  }, [tokens, selection, cutIds]);
 }

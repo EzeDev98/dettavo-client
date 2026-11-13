@@ -1,25 +1,19 @@
 import { matchPath, Navigate, Outlet, useLocation } from 'react-router';
-import Spinner from '@shared/components/ui/Spinner.jsx';
 import AppFrame from '@shared/components/layout/AppFrame.jsx';
+import LoadingScreen from '@shared/components/feedback/LoadingScreen.jsx';
 import StatusBar from '@features/editor/StatusBar.jsx';
 import ServiceDownScreen from '@features/setup/ServiceDownScreen.jsx';
 import SetupScreen from '@features/setup/SetupScreen.jsx';
 import { useSystemStatus } from '@features/setup/systemStatus.js';
 import { ROUTES } from '@app/router/routes.js';
-import './AppShell.css';
 
 // The first-run screen the installed app must show before Home, or null when there is none. The system status
 // decides, in this order (Build Plan 20c; there is no pairing):
 //   server down -> Service down
 //   a tool missing -> Setup; /setup stays on Setup until its Continue
 function firstRunScreen(pathname, { data: status, isPending, isError }) {
-  if (isPending) {
-    return (
-      <div className="app-shell__loading">
-        <Spinner label="Connecting to the local service" />
-      </div>
-    );
-  }
+  // StartupGate has usually filled the status already; this shows only when it could not wait long enough.
+  if (isPending) return <LoadingScreen page />;
   if (isError) return <ServiceDownScreen />;
   if (!status.ready && pathname !== ROUTES.setup) return <Navigate to={ROUTES.setup} replace />;
   if (pathname === ROUTES.setup) return <SetupScreen status={status} />;

@@ -51,21 +51,23 @@ export function TimelineRuler({ view, hidden }) {
 }
 
 // The timeline (Build Plan 16a, 16b, 16d, 16f; prototype 5b and 5c): one block per timeline clip, end to end, with
-// the cut overlay and the selection band on top and the playhead above them. Pressing and dragging on it scrubs;
-// ⌘-scroll or a pinch zooms around the pointer; a sideways scroll pans when zoomed. Blocks are dragged to reorder
-// them or onto the tray to take them off; a ready tile dropped on it goes where the accent line shows.
-export function Timeline({ view }) {
+// the selection band on top and the playhead above them. Pressing and dragging on it scrubs; ⌘-scroll or a pinch
+// zooms around the pointer; a sideways scroll pans when zoomed. Blocks are dragged to reorder them or onto the tray
+// to take them off; a ready tile dropped on it goes where the accent line shows.
+// axis (timelineAxis): everything is drawn in its time. Edited (Skip cuts on): a cut takes no space, so each block is
+// as long as what is kept of its clip. Timeline time (Skip cuts off): blocks at full length with the cuts over them.
+export function Timeline({ view, axis }) {
   const { state, dispatch, spans, plan } = useEditor();
   const { engine, playing } = usePlayer();
   const [insertAt, setInsertAt] = useState(null);
   const [draggingClipId, setDraggingClipId] = useState(null);
   const playheadRef = useRef(null);
   const scrubbing = useRef(false);
-  const latest = useRef({ view, playing });
+  const latest = useRef({ view, playing, axis });
   const lastTime = useRef(null);
 
   useEffect(() => {
-    latest.current = { view, playing };
+    latest.current = { view, playing, axis };
   });
 
   const names = useMemo(() => new Map(state.clips.map((clip) => [clip.id, clipName(clip)])), [state.clips]);
@@ -85,19 +87,20 @@ export function Timeline({ view }) {
     return fraction;
   };
 
-  // A zoom, a pan or a resize moves the playhead too.
+  // A zoom, a pan, a resize or a change of axis moves the playhead too.
   useEffect(() => {
-    placePlayhead(engine.timeMs, view);
+    placePlayhead(axis.toAxis(engine.timeMs), view);
   });
 
   usePlayerClock((now) => {
-    const { view: current, playing: isPlaying } = latest.current;
-    const fraction = placePlayhead(now, current);
+    const { view: current, playing: isPlaying, axis: currentAxis } = latest.current;
+    const at = currentAxis.toAxis(now);
+    const fraction = placePlayhead(at, current);
     const moved = now !== lastTime.current;
     lastTime.current = now;
     if (current.fit || !moved) return;
-    if (isPlaying && (fraction > 0.9 || fraction < 0)) current.reveal(now, 'page');
-    else if (!isPlaying && (fraction > 1 || fraction < 0)) current.reveal(now, 'centre');
+    if (isPlaying && (fraction > 0.9 || fraction < 0)) current.reveal(at, 'page');
+    else if (!isPlaying && (fraction > 1 || fraction < 0)) current.reveal(at, 'centre');
   });
 
   // Wheel and pinch need a listener that is not passive, so they can stop the page from scrolling.
@@ -126,7 +129,8 @@ export function Timeline({ view }) {
   // Scrubbing: press seeks, dragging keeps seeking, across clip joins too. A press on a block may also start a drag.
   useEffect(() => {
     const onMove = (event) => {
-      if (scrubbing.current) engine.seek(latest.current.view.timeAt(event.clientX));
+      const { view: current, axis: currentAxis } = latest.current;
+      if (scrubbing.current) engine.seek(currentAxis.fromAxis(current.timeAt(event.clientX)));
     };
     const onUp = () => {
       scrubbing.current = false;
@@ -154,13 +158,16 @@ export function Timeline({ view }) {
     if (event.button !== 0 || empty) return;
     if (!event.target.closest('.timeline-block')) event.preventDefault();
     scrubbing.current = true;
-    engine.seek(view.timeAt(event.clientX));
+    engine.seek(axis.fromAxis(view.timeAt(event.clientX)));
   };
+
+  // Each timeline clip where it is drawn: { span, startMs, endMs } in the axis's time.
+  const blocks = spans.map((span) => ({ span, startMs: axis.toAxis(span.timelineStartMs), endMs: axis.toAxis(span.timelineEndMs) }));
 
   // Where a dropped clip lands: before the first other clip whose middle is right of the pointer (prototype insAt).
   const insertionIndex = (event, clipId) => {
     const atMs = view.timeAt(event.clientX);
-    return spans.filter((span) => span.clipId !== clipId && span.timelineStartMs + span.durationMs / 2 < atMs).length;
+    return blocks.filter(({ span, startMs, endMs }) => span.clipId !== clipId && (startMs + endMs) / 2 < atMs).length;
   };
 
   const onDragOver = (event) => {
@@ -198,12 +205,13 @@ export function Timeline({ view }) {
   let markerMs = null;
   if (insertAt !== null) {
     const drag = currentClipDrag();
-    const rest = spans.filter((span) => span.clipId !== drag?.clipId);
-    markerMs = insertAt < rest.length ? rest[insertAt].timelineStartMs : plan.timelineMs;
+    const rest = blocks.filter(({ span }) => span.clipId !== drag?.clipId);
+    markerMs = insertAt < rest.length ? rest[insertAt].startMs : axis.totalMs;
   }
 
+  // A selection that lies wholly inside cuts takes no space in edited time, so it has no band.
   const band = selection
-    ? { startMs: tokens[selection.first].timelineStartMs, endMs: tokens[selection.last].timelineEndMs }
+    ? { startMs: axis.toAxis(tokens[selection.first].timelineStartMs), endMs: axis.toAxis(tokens[selection.last].timelineEndMs) }
     : null;
 
   return (
@@ -217,20 +225,20 @@ export function Timeline({ view }) {
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
-      {spans.filter((span) => visible(span.timelineStartMs, span.timelineEndMs)).map((span) => (
+      {blocks.filter(({ startMs, endMs }) => endMs > startMs && visible(startMs, endMs)).map(({ span, startMs, endMs }) => (
         <div
           key={span.clipId}
           className={cx('timeline-block', draggingClipId === span.clipId && 'timeline-block--dragging')}
           draggable
           onDragStart={(event) => onBlockDragStart(event, span.clipId)}
-          style={{ left: `${view.percentAt(span.timelineStartMs)}%`, width: `${(span.durationMs / view.spanMs) * 100}%` }}
+          style={{ left: `${view.percentAt(startMs)}%`, width: `${((endMs - startMs) / view.spanMs) * 100}%` }}
         >
           <b className="timeline-block__name">{names.get(span.clipId)}</b>
-          <span className="timeline-block__length">{formatTimecode(span.durationMs)}</span>
+          <span className="timeline-block__length">{formatTimecode(endMs - startMs)}</span>
         </div>
       ))}
 
-      {plan.cuts.filter((cut) => visible(cut.timelineStartMs, cut.timelineEndMs)).map((cut) => (
+      {!axis.edited && plan.cuts.filter((cut) => visible(cut.timelineStartMs, cut.timelineEndMs)).map((cut) => (
         <div
           key={`${cut.clipId}-${cut.startMs}`}
           className="timeline-cut"
@@ -241,7 +249,7 @@ export function Timeline({ view }) {
         />
       ))}
 
-      {band && (
+      {band && band.endMs > band.startMs && (
         <div
           className="timeline-band"
           style={{ left: `${view.percentAt(band.startMs)}%`, width: `${((band.endMs - band.startMs) / view.spanMs) * 100}%` }}

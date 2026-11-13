@@ -51,6 +51,21 @@ export function tokenIndexAt(tokens, timelineMs) {
   return -1;
 }
 
+// The time the timeline is drawn in. With Skip cuts on it is edited time: cut parts take no space, so the timeline is
+// as long as what plays and exports. With Skip cuts off it is timeline time, with the cuts drawn over it.
+// Returns { edited, totalMs, toAxis(timelineMs), fromAxis(axisMs) -> timelineMs }. fromAxis never lands inside a cut.
+export function timelineAxis(plan, skipCuts) {
+  if (!skipCuts) {
+    return { edited: false, totalMs: plan.timelineMs, toAxis: (timelineMs) => timelineMs, fromAxis: (axisMs) => axisMs };
+  }
+  return {
+    edited: true,
+    totalMs: plan.editedMs,
+    toAxis: (timelineMs) => timelineToEdited(plan, timelineMs),
+    fromAxis: (axisMs) => editedToTimeline(plan, axisMs)?.timelineMs ?? 0,
+  };
+}
+
 // Edited time back to { clipId, clipMs, timelineMs }: always a kept moment, never inside a cut. null when nothing is
 // kept. The very end belongs to the last keep segment.
 export function editedToTimeline(plan, editedMs) {

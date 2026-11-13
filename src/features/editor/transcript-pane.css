@@ -45,10 +45,12 @@
 }
 
 /* ---- The transcript (virtual list: rows are placed with translateY and measured, so spacing is padding) */
+/* Selecting is Dettavo's own (lavender), never the browser's text selection: nothing in the transcript can turn blue. */
 .transcript-view {
   flex: 1;
   min-height: 0;
   overflow: auto;
+  user-select: none;
 }
 
 .transcript-view__list { position: relative; }
@@ -121,7 +123,6 @@
   padding: var(--token-pad-y) 0;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  user-select: none;
   transition: background-color var(--motion-hover) var(--ease-standard);
 }
 
@@ -142,9 +143,8 @@
 
 .transcript-token--hidden { display: none; }
 
-/* Pause chips, as in the prototype: removed has a red border; over the pause bar's threshold and untouched is
-   amber; trimmed is green and shows what it keeps. A selection still shows on them. */
-.transcript-token--pause.transcript-token--removed { border-color: var(--color-removed); }
+/* Pause chips: over the pause bar's threshold and untouched is amber; trimmed is green and shows what it keeps.
+   A selection still shows on them. Cut tokens are not in the transcript at all (they are under Cuts). */
 
 .transcript-token--long,
 .transcript-token--long:hover {
@@ -164,14 +164,6 @@
 .transcript-token--selected:hover {
   background: var(--color-selection);
   color: var(--color-on-selection);
-}
-
-/* A removed word: red, struck through, on a red tint. As in the prototype it wins over the selection. */
-.transcript-token--removed:not(.transcript-token--pause),
-.transcript-token--removed:not(.transcript-token--pause):hover {
-  background: var(--color-removed-tint);
-  color: var(--color-removed);
-  text-decoration: line-through;
 }
 
 /* The playing word (prototype .w.cur), set by the player outside React. As in the prototype it wins over the rest. */

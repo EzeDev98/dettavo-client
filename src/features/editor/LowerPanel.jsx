@@ -1,9 +1,11 @@
+import { useMemo } from 'react';
 import { Plus, Redo2, Scissors, Undo2, ZoomIn, ZoomOut } from 'lucide-react';
 import Button from '@shared/components/ui/Button.jsx';
 import Checkbox from '@shared/components/ui/Checkbox.jsx';
 import Dropdown from '@shared/components/ui/Dropdown.jsx';
 import IconButton from '@shared/components/ui/IconButton.jsx';
 import { formatTimecode } from '@shared/utils/formatting.js';
+import { timelineAxis } from '@core/edit/timeMap.js';
 import { useEditor } from './editorContext.js';
 import { canRemove } from './editorReducer.js';
 import { usePlayer } from './playerContext.js';
@@ -15,15 +17,17 @@ const PADDING = [0, 20, 30, 50, 80].map((ms) => ({ value: ms, label: `${ms} ms` 
 
 // The editor's lower panel (guide 8.8, prototype .lower): the toolbar, the ruler and the timeline. Original is the
 // length of the timeline clips together; Edited drops by each cut. The zoom buttons zoom by 2× around the playhead
-// (or the middle when it is out of view); Fit shows the whole timeline.
+// (or the middle when it is out of view); Fit shows the whole timeline. The ruler and the timeline share one time
+// axis: edited time while Skip cuts is on (cut parts take no space), timeline time while it is off.
 export default function LowerPanel({ onAdd }) {
   const { state, dispatch, spans, plan } = useEditor();
   const player = usePlayer();
   const empty = spans.length === 0;
-  const view = useTimelineView(plan.timelineMs);
+  const axis = useMemo(() => timelineAxis(plan, player.skipCuts), [plan, player.skipCuts]);
+  const view = useTimelineView(axis.totalMs);
 
   const zoomAroundPlayhead = (factor) => {
-    const atMs = player.engine.timeMs;
+    const atMs = axis.toAxis(player.engine.timeMs);
     const fraction = (atMs - view.startMs) / view.spanMs;
     view.zoomTo(view.pixelsPerSecond * factor, atMs, fraction >= 0 && fraction <= 1 ? fraction : 0.5);
   };
@@ -75,7 +79,7 @@ export default function LowerPanel({ onAdd }) {
       </div>
 
       <TimelineRuler view={view} hidden={empty} />
-      <Timeline view={view} />
+      <Timeline view={view} axis={axis} />
     </section>
   );
 }

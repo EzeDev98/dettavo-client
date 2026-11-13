@@ -12,11 +12,12 @@ import TranscriptView from './TranscriptView.jsx';
 import './transcript-pane.css';
 
 // "3 words · 00:01.4", or "Pause · 00:01.9" when the selection holds no word. The length runs across clip joins.
-function selectionSummary(tokens, selection) {
+// Cut words are not in the transcript, so they are not counted.
+function selectionSummary(tokens, selection, cutIds) {
   if (!selection) return '';
   let words = 0;
   for (let index = selection.first; index <= selection.last; index += 1) {
-    if (tokens[index].kind === 'word') words += 1;
+    if (tokens[index].kind === 'word' && !cutIds.has(tokens[index].id)) words += 1;
   }
   const lengthMs = tokens[selection.last].timelineEndMs - tokens[selection.first].timelineStartMs;
   return `${words ? `${words} word${words === 1 ? '' : 's'}` : 'Pause'} · ${formatTimecode(lengthMs)}`;
@@ -26,7 +27,7 @@ function selectionSummary(tokens, selection) {
 // Restore; the pause bar; the active tab; and the Clips tray at its foot (tray). Until a clip is on the timeline the
 // body says what is happening (prototype 5e).
 export default function TranscriptPane({ items, tray }) {
-  const { state, dispatch, plan } = useEditor();
+  const { state, dispatch, plan, cutIds } = useEditor();
   const [tab, setTab] = useState('transcript');
   const panelId = useId();
   const statusByClip = useMemo(() => new Map(items.map(({ clip, status }) => [clip.id, status])), [items]);
@@ -45,7 +46,7 @@ export default function TranscriptPane({ items, tray }) {
           ]}
         />
         <span className="pane-header__spacer" />
-        <span className="pane-header__muted">{selectionSummary(state.tokens, state.selection)}</span>
+        <span className="pane-header__muted">{selectionSummary(state.tokens, state.selection, cutIds)}</span>
         <Button variant="secondary" disabled={!canRemove(state)} onClick={() => dispatch({ type: 'removeSelection' })}>
           Remove
         </Button>

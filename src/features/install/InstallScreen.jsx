@@ -1,7 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { useNavigate } from 'react-router';
+import { Navigate, useNavigate } from 'react-router';
 import { clearInstallPrompt, getInstallState, subscribeInstall } from '@core/pwa/installPrompt.js';
-import { isPWAInstalled } from '@core/pwa/isPWAInstalled.js';
+import { isPWAInstalled, isRunningAsApp } from '@core/pwa/isPWAInstalled.js';
 import FlowScreen from '@shared/components/layout/FlowScreen.jsx';
 import Button from '@shared/components/ui/Button.jsx';
 import FeatureCard, { FeatureList } from '@shared/components/ui/FeatureCard.jsx';
@@ -41,6 +41,10 @@ export default function InstallScreen() {
     return () => query.removeEventListener('change', onChange);
   }, []);
 
+  // Checked on every render, as in Ahorra: when Chrome moves this tab into the new app window, the display-mode change
+  // above re-renders this screen, and the app's own window goes Home instead of showing the hand-off.
+  if (isRunningAsApp()) return <Navigate to={ROUTES.projects} replace />;
+
   let phase = 'waiting';
   if (installed || accepted || isPWAInstalled()) phase = 'handoff';
   else if (installing) phase = 'installing';
@@ -69,7 +73,7 @@ export default function InstallScreen() {
   return (
     <FlowScreen
       card
-      onBack={() => navigate(ROUTES.welcome)}
+      onBack={() => navigate(ROUTES.onboarding)}
       top={<LaptopFeed />}
       title={INSTALL_COPY.title}
       description={manual ? INSTALL_COPY.manualDescription : INSTALL_COPY.description}

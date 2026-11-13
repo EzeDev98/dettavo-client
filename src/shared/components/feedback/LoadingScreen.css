@@ -1,0 +1,76 @@
+/* From Ahorra. The page colour, continuing the native splash (manifest background_color), so the start never flashes. */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-splash);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--splash-gap);
+  background: var(--color-splash-bg);
+}
+
+.loading-screen__logo {
+  inline-size: var(--splash-logo-size);
+  block-size: var(--splash-logo-size);
+}
+
+.loading-screen__tagline {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: var(--leading-md);
+  color: var(--color-splash-text);
+  text-align: center;
+}
+
+.loading-screen__dots {
+  display: inline-flex;
+  gap: var(--gap);
+}
+
+.loading-screen__dot {
+  inline-size: var(--splash-dot-size);
+  block-size: var(--splash-dot-size);
+  border-radius: 50%;
+  background: var(--color-splash-logo);
+  opacity: 0.3;
+  animation: loading-dot var(--splash-dot-cycle) var(--ease-standard) infinite;
+}
+
+/* --loader-phase puts the dots on a shared clock (see LoadingScreen.jsx), so the copy in index.html and this one pulse in step. */
+.loading-screen__dot:nth-child(1) { animation-delay: var(--loader-phase, 0ms); }
+.loading-screen__dot:nth-child(2) { animation-delay: calc(var(--loader-phase, 0ms) + var(--splash-dot-cycle) / 3); }
+.loading-screen__dot:nth-child(3) { animation-delay: calc(var(--loader-phase, 0ms) + var(--splash-dot-cycle) * 2 / 3); }
+
+@keyframes loading-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.85);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Reduced motion: the dots stay still. */
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen__dot {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+/* Waiting inside the app: in the page instead of over it, with a smaller logo. */
+.loading-screen--page {
+  position: absolute;
+  z-index: auto;
+}
+
+.loading-screen--page .loading-screen__logo {
+  inline-size: var(--splash-logo-size-page);
+  block-size: var(--splash-logo-size-page);
+}

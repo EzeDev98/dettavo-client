@@ -11,32 +11,80 @@ import { usePlayer, usePlayerClock } from './playerContext.js';
 import { transcriptRows } from './transcriptRows.js';
 
 // Paragraph rows are measured as they render; these are only first guesses.
-const ESTIMATED_HEIGHTS = { divider: 22, paragraph: 112, state: 40, noSpeech: 40 };
+const ESTIMATED_HEIGHTS = { divider: 22, paragraph: 112, state: 40, noSpeech: 40, allCut: 40 };
 const OVERSCAN = 6;
 const CURRENT = 'transcript-token--current';
 // Shorter pauses render as hidden spans that still count in a selection (guide 8.6).
 const CHIP_MIN_MS = 300;
 
-const tokenIndexAt = (target) => {
+// Dragging past the top or bottom of the pane scrolls it: within this many pixels of the edge, or beyond it, the pane
+// scrolls, faster the further the pointer goes, up to the most pixels per frame.
+const DRAG_SCROLL_EDGE = 40;
+const DRAG_SCROLL_MAX = 28;
+
+const tokenIndexOfElement = (target) => {
   const element = target instanceof Element ? target.closest('[data-i]') : null;
   return element ? Number(element.dataset.i) : null;
 };
 
+// The token a drag points at. The pointer is held inside the pane, so a drag that leaves it still selects along the
+// edge. Over the gap between words, the time column or a line's empty end, the nearest token of that paragraph counts:
+// on the pointer's line by distance across, otherwise the closest line.
+function tokenIndexAtPoint(pane, x, y) {
+  const box = pane.getBoundingClientRect();
+  const px = Math.min(Math.max(x, box.left + 1), box.right - 1);
+  const py = Math.min(Math.max(y, box.top + 1), box.bottom - 1);
+  const target = document.elementFromPoint(px, py);
+  if (!target || !pane.contains(target)) return null;
+  const direct = tokenIndexOfElement(target);
+  if (direct !== null) return direct;
+
+  const row = target.closest('.transcript-view__row');
+  if (!row) return null;
+  let best = null;
+  let bestScore = Infinity;
+  row.querySelectorAll('[data-i]').forEach((element) => {
+    const rect = element.getBoundingClientRect();
+    if (!rect.width) return; // a hidden short pause
+    const onLine = py >= rect.top && py <= rect.bottom;
+    const across = px < rect.left ? rect.left - px : px > rect.right ? px - rect.right : 0;
+    const down = onLine ? 0 : Math.min(Math.abs(py - rect.top), Math.abs(py - rect.bottom));
+    const score = down * 10_000 + across; // the line comes first, then the distance along it
+    if (score < bestScore) {
+      bestScore = score;
+      best = Number(element.dataset.i);
+    }
+  });
+  return best;
+}
+
+// Pixels to scroll this frame: negative above the pane, positive below it, 0 in between.
+function edgeScroll(pane, y) {
+  const box = pane.getBoundingClientRect();
+  const speed = (depth) => Math.min(DRAG_SCROLL_MAX, Math.ceil((depth / DRAG_SCROLL_EDGE) * DRAG_SCROLL_MAX));
+  if (y < box.top + DRAG_SCROLL_EDGE) return -speed(box.top + DRAG_SCROLL_EDGE - y);
+  if (y > box.bottom - DRAG_SCROLL_EDGE) return speed(y - (box.bottom - DRAG_SCROLL_EDGE));
+  return 0;
+}
+
 // The transcript of every timeline clip in order (guide 8.6, Build Plan 13c to 13e): only the visible paragraphs
-// are in the DOM. Mouse: press on a word or pause to select it, drag to extend, Shift-click to extend from the
+// are in the DOM. Mouse: press on a word or pause to select it, drag to extend (dragging to or past the top or bottom
+// edge scrolls the pane, so a long passage can be selected in one drag), Shift-click or ⌘-click to extend from the
 // anchor, release without dragging to seek, press on empty space to clear. statusByClip: Map of clip id to its
 // tile status, for clips on the timeline that are not ready yet. While playing, the playing word is highlighted and
 // kept in the middle of the pane (15d), outside React.
 export default function TranscriptView({ statusByClip }) {
-  const { state, dispatch, spans } = useEditor();
-  const { tokens, selection, clips, removed, trims, pauseThresholdMs } = state;
+  const { state, dispatch, spans, cutIds } = useEditor();
+  const { tokens, selection, clips, trims, pauseThresholdMs } = state;
   const scrollRef = useRef(null);
-  const drag = useRef({ anchor: null, moved: false });
+  // anchor: the token the drag started on. focus: the token it reaches now. x, y: the pointer. frame: the running loop.
+  const drag = useRef({ anchor: null, focus: null, moved: false, x: 0, y: 0, frame: 0 });
   const current = useRef({ index: -1, element: null });
   const { playing } = usePlayer();
   const playingNow = useRef(playing);
 
-  const rows = useMemo(() => transcriptRows(tokens, spans), [tokens, spans]);
+  // Cut tokens leave the transcript at once; they are listed under Cuts, where Restore brings them back.
+  const rows = useMemo(() => transcriptRows(tokens, spans, cutIds), [tokens, spans, cutIds]);
   const names = useMemo(() => new Map(clips.map((clip) => [clip.id, clipName(clip)])), [clips]);
   const gutter = useMemo(() => readTokenPx('--gutter'), []);
 
@@ -80,41 +128,68 @@ export default function TranscriptView({ statusByClip }) {
     }
   });
 
-  // Releasing anywhere ends a drag. A press that never moved off its token seeks to it.
+  // One frame of a drag: scroll when the pointer is at or past an edge, then extend the selection to the token under it.
+  // It runs every frame while the button is down, so the selection keeps growing while the pane scrolls under a
+  // pointer that is not moving.
+  const dragFrame = () => {
+    const pane = scrollRef.current;
+    const active = drag.current;
+    if (!pane || active.anchor === null) return;
+    const step = edgeScroll(pane, active.y);
+    if (step) pane.scrollTop += step;
+    const index = tokenIndexAtPoint(pane, active.x, active.y);
+    if (index !== null && index !== active.focus) {
+      active.focus = index;
+      if (index !== active.anchor) active.moved = true;
+      dispatch({ type: 'select', anchor: active.anchor, focus: index });
+    }
+    active.frame = requestAnimationFrame(dragFrame);
+  };
+
+  // While the button is down the pointer is followed anywhere in the window. Releasing ends the drag; a press that
+  // never moved off its token seeks to it.
   useEffect(() => {
-    const onMouseUp = () => {
-      const { anchor, moved } = drag.current;
-      if (anchor === null) return;
-      if (!moved) dispatch({ type: 'seek', timelineMs: tokens[anchor].timelineStartMs });
-      drag.current = { anchor: null, moved: false };
+    const onMouseMove = (event) => {
+      drag.current.x = event.clientX;
+      drag.current.y = event.clientY;
     };
+    const onMouseUp = () => {
+      const { anchor, moved, frame } = drag.current;
+      if (anchor === null) return;
+      cancelAnimationFrame(frame);
+      if (!moved) dispatch({ type: 'seek', timelineMs: tokens[anchor].timelineStartMs });
+      drag.current = { anchor: null, focus: null, moved: false, x: 0, y: 0, frame: 0 };
+    };
+    window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
-    return () => window.removeEventListener('mouseup', onMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      cancelAnimationFrame(drag.current.frame);
+    };
   }, [dispatch, tokens]);
 
   const onMouseDown = (event) => {
     if (event.button !== 0) return;
-    const index = tokenIndexAt(event.target);
+    // A press in a paragraph's text starts from the nearest token, so one that lands in the gap between two words or past
+    // a line's end (easy with a trackpad) still selects and drags.
+    const inText = event.target instanceof Element && event.target.closest('.paragraph__text');
+    const index =
+      tokenIndexOfElement(event.target) ?? (inText ? tokenIndexAtPoint(scrollRef.current, event.clientX, event.clientY) : null);
     if (index === null) {
       if (!event.target.closest('[data-seek]')) dispatch({ type: 'clearSelection' });
       return;
     }
     event.preventDefault();
-    if (event.shiftKey && selection) {
+    // Shift-click or ⌘-click: the selection runs from its anchor to this token, in either direction.
+    if ((event.shiftKey || event.metaKey) && selection) {
       dispatch({ type: 'select', anchor: selection.anchor, focus: index });
       return;
     }
-    drag.current = { anchor: index, moved: false };
+    cancelAnimationFrame(drag.current.frame);
+    drag.current = { anchor: index, focus: index, moved: false, x: event.clientX, y: event.clientY, frame: 0 };
     dispatch({ type: 'select', anchor: index, focus: index });
-  };
-
-  const onMouseOver = (event) => {
-    const { anchor } = drag.current;
-    if (anchor === null) return;
-    const index = tokenIndexAt(event.target);
-    if (index === null) return;
-    if (index !== anchor) drag.current.moved = true;
-    dispatch({ type: 'select', anchor, focus: index });
+    drag.current.frame = requestAnimationFrame(dragFrame);
   };
 
   const onClick = (event) => {
@@ -128,7 +203,6 @@ export default function TranscriptView({ statusByClip }) {
       className="transcript-view"
       role="presentation"
       onMouseDown={onMouseDown}
-      onMouseOver={onMouseOver}
       onClick={onClick}
     >
       <div className="transcript-view__list" style={{ height: virtualizer.getTotalSize() }}>
@@ -146,7 +220,7 @@ export default function TranscriptView({ statusByClip }) {
                 row={row}
                 tokens={tokens}
                 selection={selection}
-                edits={{ removed, trims, thresholdMs: pauseThresholdMs }}
+                edits={{ cutIds, trims, thresholdMs: pauseThresholdMs }}
                 names={names}
                 statusByClip={statusByClip}
               />
@@ -166,6 +240,8 @@ function Row({ row, tokens, selection, edits, names, statusByClip }) {
       return <p className="transcript-view__note">{statusByClip.get(row.clipId)?.tag ?? 'Preparing'}</p>;
     case 'noSpeech':
       return <p className="transcript-view__note">No speech found in this clip.</p>;
+    case 'allCut':
+      return <p className="transcript-view__note">All of this clip is cut. Restore it from Cuts.</p>;
     default: {
       // Only the part of the selection inside this paragraph reaches it, so the others do not render again.
       const inside = selection && selection.last >= row.first && selection.first <= row.last;
@@ -177,7 +253,7 @@ function Row({ row, tokens, selection, edits, names, statusByClip }) {
           startMs={row.startMs}
           selectedFirst={inside ? Math.max(selection.first, row.first) : -1}
           selectedLast={inside ? Math.min(selection.last, row.last) : -1}
-          removed={edits.removed}
+          cutIds={edits.cutIds}
           trims={edits.trims}
           thresholdMs={edits.thresholdMs}
         />
@@ -188,20 +264,20 @@ function Row({ row, tokens, selection, edits, names, statusByClip }) {
 
 // One paragraph: its start time in timeline time, then its words and pauses. Pauses of 0.3 s or more are chips
 // ("1.9s"); shorter ones are hidden spans. Every token carries data-i, its index, for the delegated mouse handlers.
-// Removed words are red and struck through; a removed pause gets a red border, a trimmed one turns green and shows
-// what it keeps ("1.9s → 0.3s"), and an untouched one over the pause bar's threshold turns amber.
-const Paragraph = memo(function Paragraph({ tokens, first, last, startMs, selectedFirst, selectedLast, removed, trims, thresholdMs }) {
+// Cut tokens are not rendered at all: they are under Cuts. A trimmed pause turns green and shows what it keeps
+// ("1.9s → 0.3s"), and an untouched one over the pause bar's threshold turns amber.
+const Paragraph = memo(function Paragraph({ tokens, first, last, startMs, selectedFirst, selectedLast, cutIds, trims, thresholdMs }) {
   const items = [];
   for (let index = first; index <= last; index += 1) {
     const token = tokens[index];
+    if (cutIds.has(token.id)) continue;
     const selected = index >= selectedFirst && index <= selectedLast;
-    const isRemoved = removed.has(token.id);
     if (token.kind === 'word') {
       items.push(
         <Fragment key={token.id}>
           <span
             data-i={index}
-            className={cx('transcript-token', isRemoved && 'transcript-token--removed', selected && 'transcript-token--selected')}
+            className={cx('transcript-token', selected && 'transcript-token--selected')}
           >
             {token.text}
           </span>
@@ -223,9 +299,8 @@ const Paragraph = memo(function Paragraph({ tokens, first, last, startMs, select
             'transcript-token',
             'transcript-token--pause',
             !chip && 'transcript-token--hidden',
-            isRemoved && 'transcript-token--removed',
             trimmed && 'transcript-token--trimmed',
-            !isRemoved && !trimmed && lengthMs > thresholdMs && 'transcript-token--long',
+            !trimmed && lengthMs > thresholdMs && 'transcript-token--long',
             selected && 'transcript-token--selected',
           )}
         >

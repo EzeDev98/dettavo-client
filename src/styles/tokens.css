@@ -68,6 +68,11 @@
   --color-badge: var(--p-badge);
   --color-brand-tint: color-mix(in srgb, var(--color-brand) 12%, transparent); /* emoji tiles */
 
+  /* Startup screen: the page colour, matching the native splash (manifest background_color), so the start never flashes. */
+  --color-splash-bg: var(--p-bg);
+  --color-splash-logo: var(--p-lavender-300); /* the dots */
+  --color-splash-text: var(--p-muted);
+
   /* States. Always paired with a word or icon, never colour alone. */
   --color-error: var(--p-red-300);
   --color-connected: var(--p-green-300);
@@ -116,6 +121,7 @@
   --motion-fly: 440ms;
   --motion-stagger: 70ms;
   --motion-loop: 1600ms; /* the Install hero's arrow, over and over */
+  --motion-reveal: 700ms; /* start-up: the loading screen fading away over the first screen */
   --motion-reduced: 120ms;
   --motion-hover: 120ms; /* colour fade on hover, nothing moves */
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
@@ -142,6 +148,14 @@
   --z-menu: 60;
   --z-overlay: 80;
   --z-toast: 100;
+  --z-splash: 120;
+
+  /* Loading screen (from Ahorra). index.html holds a static copy of these values: change both together. */
+  --splash-logo-size: 151px;
+  --splash-logo-size-page: 96px;
+  --splash-gap: 16px;
+  --splash-dot-size: 8px;
+  --splash-dot-cycle: 1500ms;
 
   /* Editor */
   --menu-pad: 4px;

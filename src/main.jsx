@@ -10,11 +10,9 @@ import '@/styles/base.css';
 import { queryClient } from '@core/data/queryClient.js';
 import { registerServiceWorker } from '@core/pwa/registerServiceWorker.js';
 import { appUpdate } from '@core/pwa/appUpdate.js';
-import { detectInstalledApp } from '@core/pwa/isPWAInstalled.js';
 import App from '@app/App.jsx';
 
 registerServiceWorker();
-detectInstalledApp();
 appUpdate.start();
 
 // Dev only: window.dettavoEdit, the edit engine in the console (Build Plan 12). Left out of a build entirely.

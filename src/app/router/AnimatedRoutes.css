@@ -1,0 +1,11 @@
+/* From Ahorra. Wraps the screens so a transition can move them as one piece. It fills the window and paints the page
+   background itself, so no edge of it shows a lighter layer while it slides. Both axes are clipped so the sideways
+   slide never creates overflow. */
+.route-stage {
+  min-height: 100dvh;
+  background: var(--color-bg);
+  overflow: clip;
+}
+
+/* A heading that takes focus when a screen arrives is not a control: no focus ring on it. */
+.route-stage h1:focus-visible { box-shadow: none; }

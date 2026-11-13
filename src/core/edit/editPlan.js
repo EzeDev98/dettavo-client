@@ -5,25 +5,47 @@ import { timelineSpans } from './tokens.js';
 // Rule 5, app.edit.min-keep-segment-ms on the server.
 export const MIN_KEEP_SEGMENT_MS = 20;
 
-// Rules 2 to 5 for one clip, on its own source time. Consecutive removed tokens merge into one cut (rule 2); a
-// trimmed pause longer than keepMs gets a cut centred in it that never merges with its neighbours (rule 3); a cut
-// holding a word shrinks by padMs at both ends (rule 4); cuts are clamped to the clip (rule 5).
+// The middle of a pause: the furthest a cut's padding may reach into a kept pause, so it never touches a kept word.
+const midpoint = (token) => token.startMs + Math.floor((token.endMs - token.startMs) / 2);
+
+// Rules 2 to 5 for one clip, on its own source time. Consecutive removed tokens merge into one cut (rule 2), and a pause
+// with a removed token on both sides is removed with them (rule 2b), so a deleted passage leaves none of its gaps
+// behind. A trimmed pause longer than keepMs gets a cut centred in it that never merges with its neighbours (rule 3).
+// Rule 4, for a cut holding a word, at each end: where the cut ends on a removed pause, the edge moves padMs into the
+// cut, clear of the kept word beside it; where it ends on a removed word, the edge moves padMs out into the kept pause
+// beside it (no further than that pause's middle), so no sound of the removed word is left. Cuts are clamped to the
+// clip (rule 5).
 function planClipCuts(tokens, removed, trims, padMs, durationMs) {
+  const isRemoved = (index) => {
+    const token = tokens[index];
+    if (removed.has(token.id)) return true;
+    return token.kind === 'pause' && index > 0 && index < tokens.length - 1
+      && removed.has(tokens[index - 1].id) && removed.has(tokens[index + 1].id);
+  };
+
   const cuts = [];
   let run = null;
 
   const closeRun = () => {
     if (!run) return;
-    const pad = run.hasWord ? padMs : 0;
-    cuts.push({ startMs: run.startMs + pad, endMs: run.endMs - pad, kind: 'REMOVE', tokenIds: run.tokenIds });
+    let { startMs, endMs } = run;
+    if (run.hasWord) {
+      startMs = run.before && run.firstIsWord ? Math.max(midpoint(run.before), startMs - padMs) : startMs + padMs;
+      endMs = run.after && run.lastIsWord ? Math.min(midpoint(run.after), endMs + padMs) : endMs - padMs;
+    }
+    cuts.push({ startMs, endMs, kind: 'REMOVE', tokenIds: run.tokenIds });
     run = null;
   };
 
-  tokens.forEach((token) => {
-    if (removed.has(token.id)) {
-      if (!run) run = { startMs: token.startMs, endMs: token.endMs, hasWord: false, tokenIds: [] };
+  tokens.forEach((token, index) => {
+    if (isRemoved(index)) {
+      if (!run) {
+        run = { startMs: token.startMs, hasWord: false, tokenIds: [], firstIsWord: token.kind === 'word', before: tokens[index - 1] };
+      }
       run.endMs = token.endMs;
       run.hasWord = run.hasWord || token.kind === 'word';
+      run.lastIsWord = token.kind === 'word';
+      run.after = tokens[index + 1];
       run.tokenIds.push(token.id);
       return;
     }
