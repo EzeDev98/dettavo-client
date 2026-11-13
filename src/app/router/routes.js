@@ -6,8 +6,9 @@ export const ROUTES = Object.freeze({
   pair: '/pair',
   setup: '/setup',
 
-  // Development only: App.jsx adds this route in dev builds.
+  // Development only: App.jsx adds these routes in dev builds.
   gallery: '/gallery',
+  projectEvents: '/dev/events/:projectId',
 });
 
 // The one path with a parameter.

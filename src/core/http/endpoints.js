@@ -7,4 +7,12 @@ export const endpoints = Object.freeze({
 
   projects: '/projects',
   project: (projectId) => `/projects/${encode(projectId)}`,
+  projectEvents: (projectId) => `/projects/${encode(projectId)}/events`,
+  jobEvents: (jobId) => `/jobs/${encode(jobId)}/events`,
+  projectClips: (projectId) => `/projects/${encode(projectId)}/clips`,
+  clip: (projectId, clipId) => `/projects/${encode(projectId)}/clips/${encode(clipId)}`,
+  clipSource: (projectId, clipId) => `/projects/${encode(projectId)}/clips/${encode(clipId)}/source`,
+  clipPrepare: (projectId, clipId) => `/projects/${encode(projectId)}/clips/${encode(clipId)}/prepare`,
+  clipProxy: (projectId, clipId) => `/projects/${encode(projectId)}/clips/${encode(clipId)}/media/proxy`,
+  clipThumbnail: (projectId, clipId) => `/projects/${encode(projectId)}/clips/${encode(clipId)}/media/thumbnail`,
 });

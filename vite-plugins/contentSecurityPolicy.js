@@ -5,7 +5,7 @@ export function contentSecurityPolicy(apiBaseUrl) {
   const server = new URL(apiBaseUrl).origin;
   const policy = [
     "default-src 'self'",
-    "img-src 'self' data: blob:",
+    `img-src 'self' data: blob: ${server}`,
     `media-src 'self' blob: ${server}`,
     "style-src 'self'",
     "font-src 'self'",

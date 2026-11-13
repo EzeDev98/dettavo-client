@@ -1,0 +1,23 @@
+.ui-top-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  padding: var(--gap) var(--gutter);
+  background: var(--color-surface);
+  border-bottom: var(--border-width) solid var(--color-line);
+}
+
+.ui-top-bar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap);
+}
+
+.ui-top-bar__mark {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  stroke-width: var(--icon-stroke);
+  color: var(--color-accent);
+}
+
+.ui-top-bar__spacer { flex: 1; }

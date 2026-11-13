@@ -1,0 +1,48 @@
+/* The Step 9 stand-in only. Steps 11 to 13 replace this file with the editor's own styles. */
+.editor-stand-in__body {
+  display: grid;
+  gap: var(--gap);
+  width: 100%;
+  max-width: calc(var(--transcript-measure) + var(--gutter) * 2);
+  padding: var(--gutter);
+}
+
+.editor-stand-in__clip {
+  display: flex;
+  align-items: center;
+  gap: var(--card-pad);
+  padding: var(--card-pad);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius);
+}
+
+.editor-stand-in__thumb {
+  flex: none;
+  width: calc(var(--card-min-width) / 2);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-stage);
+  border-radius: var(--radius-sm);
+}
+
+.editor-stand-in__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.editor-stand-in__detail {
+  display: grid;
+  flex: 1;
+  gap: calc(var(--gap) / 2);
+  min-width: 0;
+}
+
+.editor-stand-in__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-stand-in__muted { color: var(--color-text-muted); }

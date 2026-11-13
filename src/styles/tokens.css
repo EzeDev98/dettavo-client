@@ -28,6 +28,8 @@
   --p-wave: #a9aeb7;
   --p-wave-bg: #1b1b1c;
   --p-stage: #161616;
+  --p-placeholder-icon: #3a3a3a;
+  --p-badge: rgba(0, 0, 0, 0.45);
 
   --p-selection: rgba(47, 111, 198, 0.5);
   --p-current-word: rgba(122, 176, 245, 0.2);
@@ -58,6 +60,9 @@
   --color-scrim: var(--p-scrim);
   --color-menu: var(--p-black);
   --color-stage: var(--p-stage);
+  --color-accent-tint: var(--p-current-word);
+  --color-placeholder-icon: var(--p-placeholder-icon);
+  --color-badge: var(--p-badge);
 
   /* States. Always paired with a word or icon, never colour alone. */
   --color-error: var(--p-red-300);
@@ -141,6 +146,17 @@
   --playhead-width: 2px;
   --progress-height: 4px;
   --status-dot-size: 8px;
+
+  /* Home */
+  --home-width: 960px;
+  --home-pad-y: 24px;
+  --home-section-gap: 32px;
+  --add-area-height: 160px;
+  --add-icon-size: 28px;
+  --card-min-width: 200px;
+  --card-gap: 6px;
+  --badge-pad-x: 6px;
+  --badge-offset: 6px;
 }
 
 /* Reduced motion: hover changes colour at once. */

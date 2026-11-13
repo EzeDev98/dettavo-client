@@ -28,7 +28,7 @@
 .ui-button--primary { background: var(--color-brand); color: var(--color-on-brand); }
 .ui-button--secondary { border-color: var(--color-field-line); }
 .ui-button--ghost { color: var(--color-text-muted); }
-.ui-button--danger { background: var(--color-error); color: var(--color-on-brand); }
+.ui-button--danger { border-color: var(--color-error); color: var(--color-error); }
 .ui-button--block { width: 100%; height: var(--button-height-block); }
 .ui-button--export { height: var(--button-height-export); }
 
@@ -39,6 +39,7 @@
   .ui-button--primary:hover:not(:disabled) { background: var(--color-brand-hover); }
 
   .ui-button--secondary:hover:not(:disabled),
+  .ui-button--danger:hover:not(:disabled),
   .ui-button--ghost:hover:not(:disabled) {
     background: var(--color-hover);
   }

@@ -31,8 +31,13 @@ function Gate() {
 }
 
 export default function AppShell() {
+  const { pathname } = useLocation();
+  const { data: status } = useSystemStatus();
+  // Home's hint (prototype 5a), once Home is what shows.
+  const hint = pathname === ROUTES.projects && status?.paired && status?.ready ? 'Drop a file anywhere to start' : undefined;
+
   return (
-    <AppFrame footer={<StatusBar />}>
+    <AppFrame footer={<StatusBar hint={hint} />}>
       <Gate />
     </AppFrame>
   );
