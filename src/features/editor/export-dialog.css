@@ -1,0 +1,40 @@
+/* The export dialog, from the approved prototype: .modal's summary, .opt rows, .prog and .acts. */
+.export-dialog {
+  display: grid;
+  gap: var(--card-pad);
+}
+
+.export-dialog__muted { color: var(--color-text-muted); }
+.export-dialog__error { color: var(--color-error); }
+
+/* A format row (prototype .opt): 40 px, a thin border, the radio, the label and its note on one line. */
+.ui-choice.export-option {
+  align-items: center;
+  height: var(--input-height);
+  padding: 0 var(--card-pad);
+  border: var(--border-width) solid var(--color-field-line);
+  border-radius: var(--radius);
+}
+
+.export-option .ui-choice__text {
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap);
+}
+
+.export-option .ui-choice__hint {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+/* The 4 px bar (prototype .prog). */
+.ui-bar.export-dialog__progress {
+  background: var(--color-raise);
+  border-radius: var(--menu-radius);
+}
+
+.export-dialog__saved {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap);
+}

@@ -1,0 +1,17 @@
+/* --flow-inset is the colour of things set into a first-run card (FlowScreen.css); elsewhere they sit on the surface. */
+.ui-info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap);
+  padding: var(--card-pad);
+  background: var(--flow-inset, var(--color-surface));
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.ui-info-banner__emoji {
+  flex: none;
+  line-height: var(--leading-sm);
+}

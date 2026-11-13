@@ -1,0 +1,137 @@
+/* The Clips tray, from the approved prototype (5b, 5d): .tray, .trh, .tiles, .tile, .th, .tg, .pb, .tdel and .addt. */
+.clips-tray {
+  flex: none;
+  padding: var(--gap) var(--gutter) var(--tray-pad-bottom);
+  background: var(--color-surface);
+  border-top: var(--border-width) solid var(--color-line);
+}
+
+.clips-tray--over { background: var(--color-accent-tint); }
+
+.clips-tray__header {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  margin-bottom: var(--gap);
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+}
+
+.clips-tray__muted { color: var(--color-text-muted); }
+.clips-tray__spacer { flex: 1; }
+
+.clips-tray__tiles {
+  display: flex;
+  gap: var(--gap);
+  padding-bottom: var(--clip-tiles-pad-bottom);
+  overflow-x: auto;
+}
+
+.clip-tile {
+  display: grid;
+  flex: none;
+  gap: calc(var(--gap) / 2);
+  width: var(--clip-tile-width);
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+  text-align: left;
+}
+
+.clip-tile__thumb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-stage);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius);
+  color: var(--color-placeholder-icon);
+}
+
+.clip-tile__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.clip-tile__placeholder {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  stroke-width: var(--icon-stroke);
+}
+
+/* Retry and Try again sit in the middle of the thumbnail, in the text colour. */
+.clip-tile__action { position: relative; color: var(--color-text); }
+
+.clip-tile__tag {
+  position: absolute;
+  top: var(--badge-offset);
+  left: var(--badge-offset);
+  max-width: calc(100% - var(--badge-offset) * 2);
+  padding: 0 var(--badge-pad-x);
+  overflow: hidden;
+  background: var(--color-badge);
+  border-radius: var(--menu-radius);
+  color: var(--color-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clip-tile__tag--error { color: var(--color-error); }
+
+.clip-tile__progress {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.clip-tile__delete {
+  position: absolute;
+  right: var(--clip-delete-offset);
+  bottom: var(--badge-offset);
+  background: var(--color-badge);
+  opacity: 0;
+  transition: opacity var(--motion-hover) var(--ease-standard);
+}
+
+.clip-tile:hover .clip-tile__delete,
+.clip-tile:focus-within .clip-tile__delete { opacity: 1; }
+
+/* A ready tile can be dragged onto the timeline; while it is, it fades (prototype .dragging). */
+.clip-tile--draggable { cursor: grab; }
+.clip-tile--dragging { opacity: var(--opacity-dragging); }
+
+.clip-tile__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clip-tile__meta { color: var(--color-text-muted); }
+
+/* The dashed plus tile at the end of the row. */
+.clip-tile--add { cursor: pointer; }
+
+.clip-tile--add .clip-tile__thumb {
+  border-style: dashed;
+  border-color: var(--color-field-line);
+  color: var(--color-text-muted);
+  transition:
+    border-color var(--motion-hover) var(--ease-standard),
+    color var(--motion-hover) var(--ease-standard);
+}
+
+@media (hover: hover) {
+  .clip-tile--add:hover .clip-tile__thumb { border-color: var(--color-accent); color: var(--color-accent); }
+}
+
+.clip-tile--add:focus-visible { box-shadow: none; }
+
+.clip-tile--add:focus-visible .clip-tile__thumb {
+  border-color: var(--focus-border);
+  box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-ring-color);
+}

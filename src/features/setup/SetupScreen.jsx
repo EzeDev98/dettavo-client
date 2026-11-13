@@ -1,57 +1,90 @@
-import { Link } from 'react-router';
-import { CircleCheck, Wrench } from 'lucide-react';
+import { useNavigate } from 'react-router';
+import FlowScreen, { FlowHero } from '@shared/components/layout/FlowScreen.jsx';
 import Button from '@shared/components/ui/Button.jsx';
-import EmptyState from '@shared/components/ui/EmptyState.jsx';
+import CommandLine from '@shared/components/ui/CommandLine.jsx';
+import FeatureCard, { FeatureList } from '@shared/components/ui/FeatureCard.jsx';
 import { useToast } from '@shared/components/ui/toastContext.js';
 import { ROUTES } from '@app/router/routes.js';
+import { ENCODER_NAMES, INSTALL_TOOLS_COMMAND, SETUP_COPY, TOOLS } from './setupContent.js';
 import { useRefreshSystemStatus } from './systemStatus.js';
-import './setup.css';
 
-// Every missing tool, encoder or model, each with the command that installs it. Check again asks the server to
-// look for the tools again (GET /system/status?refresh=true).
+const found = (...details) => [SETUP_COPY.found, ...details.filter(Boolean)].join(' · ');
+
+// One card per tool, from GET /system/status. FFmpeg counts as found only when it is 7 or newer with every encoder
+// Dettavo needs; otherwise its card says what it lacks.
+function toolCards(status) {
+  const encoders = Object.entries(status.encoders ?? {});
+  const encoderName = (name) => ENCODER_NAMES[name] ?? name;
+  const hasEncoders = encoders.filter(([, available]) => available).map(([name]) => encoderName(name));
+  const lacksEncoders = encoders.filter(([, available]) => !available).map(([name]) => encoderName(name));
+
+  const tool = (key, ok, statusText) => ({ key, ...TOOLS[key], ok, statusText });
+  const program = (key, { available, version }) => tool(key, available, available ? found(version) : SETUP_COPY.notFound);
+
+  const { ffmpeg } = status;
+  let ffmpegText = SETUP_COPY.notFound;
+  if (ffmpeg.available) {
+    if (!status.ffmpegSevenOrNewer) ffmpegText = found(ffmpeg.version, 'needs FFmpeg 7 or newer');
+    else if (lacksEncoders.length > 0) ffmpegText = found(ffmpeg.version, `missing ${lacksEncoders.join(', ')}`);
+    else ffmpegText = found(ffmpeg.version, hasEncoders.join(', '));
+  }
+  const ffmpegReady = ffmpeg.available && status.ffmpegSevenOrNewer && lacksEncoders.length === 0;
+
+  const modelFile = status.model.path?.split('/').pop();
+  return [
+    tool('ffmpeg', ffmpegReady, ffmpegText),
+    program('ffprobe', status.ffprobe),
+    program('whisperCli', status.whisperCli),
+    tool('model', status.model.present, status.model.present ? found(modelFile) : SETUP_COPY.notFound),
+  ];
+}
+
+// Route /setup (prototype 5f). Shown first in the installed app whenever a tool is missing. Check again asks the
+// server to look for the tools again; once all are found, Continue goes Home.
 export default function SetupScreen({ status }) {
+  const navigate = useNavigate();
   const toast = useToast();
   const refresh = useRefreshSystemStatus();
-  const missing = status?.missing ?? [];
+  const cards = toolCards(status);
+  const missingCount = cards.filter((card) => !card.ok).length;
 
   const checkAgain = () =>
     refresh.mutate(undefined, {
       onError: (error) => toast.show(error.message, { tone: 'error' }),
     });
 
-  if (missing.length === 0) {
-    return (
-      <div className="setup-screen">
-        <EmptyState
-          icon={CircleCheck}
-          title="Everything is installed"
-          description="FFmpeg, ffprobe, whisper-cli and the model were all found."
-          action={<Link to={ROUTES.projects} className="ui-button ui-button--primary">Continue</Link>}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="setup-screen">
-      <div className="setup-screen__body">
-        <EmptyState
-          icon={Wrench}
-          title="A few things are missing"
-          description="Dettavo needs these on this Mac. Run the command in dettavo-server, then check again."
-        />
-        <ul className="setup-list">
-          {missing.map(({ item, fix }) => (
-            <li key={item} className="setup-list__item">
-              <span className="setup-list__name">{item}</span>
-              <code className="setup-command">{fix}</code>
-            </li>
-          ))}
-        </ul>
-        <div className="setup-screen__actions">
-          <Button busy={refresh.isPending} onClick={checkAgain}>Check again</Button>
-        </div>
-      </div>
-    </div>
+    <FlowScreen
+      card
+      top={<FlowHero emoji={SETUP_COPY.emoji} />}
+      title={status.ready ? SETUP_COPY.readyTitle : SETUP_COPY.title}
+      description={status.ready ? SETUP_COPY.readyDescription : SETUP_COPY.description(missingCount)}
+      footer={
+        status.ready ? (
+          <Button block onClick={() => navigate(ROUTES.projects, { replace: true })}>
+            {SETUP_COPY.continue}
+          </Button>
+        ) : (
+          <Button block waiting={refresh.isPending} onClick={checkAgain}>
+            {refresh.isPending ? SETUP_COPY.checking : SETUP_COPY.checkAgain}
+          </Button>
+        )
+      }
+    >
+      <FeatureList>
+        {cards.map(({ key, emoji, name, description, ok, statusText }, index) => (
+          <FeatureCard
+            key={key}
+            emoji={emoji}
+            title={name}
+            description={description}
+            status={statusText}
+            statusTone={ok ? 'ok' : 'missing'}
+            index={index}
+          />
+        ))}
+      </FeatureList>
+      {!status.ready && <CommandLine label={SETUP_COPY.runLabel} command={INSTALL_TOOLS_COMMAND} />}
+    </FlowScreen>
   );
 }

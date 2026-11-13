@@ -3,7 +3,7 @@ import { Pencil, Play, Trash2 } from 'lucide-react';
 import IconButton from '@shared/components/ui/IconButton.jsx';
 import { apiUrl } from '@core/http/apiUrl.js';
 import { endpoints } from '@core/http/endpoints.js';
-import { formatDuration, formatUpdated } from '@shared/utils/formatting.js';
+import { formatClipCount, formatDuration, formatUpdated } from '@shared/utils/formatting.js';
 
 // One project on Home (prototype 5a): the first timeline clip's thumbnail with the timeline's length, the name with
 // Rename and Delete, then "<n> clips · <updated>". Rename is in place: Enter or clicking away saves, Escape cancels.
@@ -42,8 +42,6 @@ export default function ProjectCard({ project, onOpen, onRename, onDelete }) {
     }
   };
 
-  const clips = `${project.clipCount} clip${project.clipCount === 1 ? '' : 's'}`;
-
   return (
     <article className="project-card">
       <button type="button" className="project-card__thumb" aria-label={`Open ${project.name}`} onClick={() => onOpen(project)}>
@@ -73,7 +71,7 @@ export default function ProjectCard({ project, onOpen, onRename, onDelete }) {
         )}
       </div>
 
-      <span className="project-card__meta">{clips} · {formatUpdated(project.updatedAt)}</span>
+      <span className="project-card__meta">{formatClipCount(project.clipCount)} · {formatUpdated(project.updatedAt)}</span>
     </article>
   );
 }

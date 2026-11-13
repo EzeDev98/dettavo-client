@@ -1,0 +1,101 @@
+/* The video pane, from the approved prototype: .vpane, .vp, .stage, .frame, .chip, .cap, .tr and .vempty. */
+.video-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Nothing on the timeline: the header's muted text hides, as in the prototype. */
+.video-pane--empty .video-pane__muted { visibility: hidden; }
+
+.video-pane__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--card-pad);
+  min-height: 0;
+  padding: var(--gutter);
+}
+
+.video-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(100%, max(var(--stage-min-width), calc((100vh - var(--stage-height-reserve)) * 16 / 9)));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-stage);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius);
+}
+
+/* An audio clip plays on a black stage with the audio icon (guide 8.7). */
+.video-stage--audio { background: var(--color-audio-stage); }
+
+/* Both players fill the stage; only the active one shows. The placeholder icon sits behind them. */
+.video-stage__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.video-stage__video[data-active="false"],
+.video-stage--audio .video-stage__video { visibility: hidden; }
+
+.video-stage__frame {
+  width: var(--stage-icon-size);
+  height: var(--stage-icon-size);
+  stroke-width: var(--stage-icon-stroke);
+  color: var(--color-placeholder-icon);
+}
+
+.video-stage__empty { color: var(--color-text-muted); }
+
+.video-stage__chip {
+  position: absolute;
+  top: var(--overlay-offset);
+  left: var(--overlay-offset);
+  padding: var(--chip-pad-y) var(--overlay-offset);
+  background: var(--color-badge);
+  border-radius: var(--radius);
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+}
+
+.video-stage__caption {
+  position: absolute;
+  right: var(--card-pad);
+  bottom: var(--overlay-offset);
+  left: var(--card-pad);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  text-align: center;
+  text-shadow: var(--caption-shadow);
+}
+
+.video-stage__word {
+  color: var(--color-accent);
+  font-weight: var(--font-weight);
+}
+
+.transport {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap);
+  align-self: stretch;
+}
+
+/* The time sits at the pane's right edge, level with the buttons. */
+.transport__time {
+  position: absolute;
+  right: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}

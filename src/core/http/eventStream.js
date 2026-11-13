@@ -1,6 +1,6 @@
-// Server-sent event streams. withCredentials sends the pairing cookie (te_session) across the two loopback ports.
+// Server-sent event streams. The server allows the app's origin through CORS, so no credentials are needed.
 import { apiUrl } from '@core/http/apiUrl.js';
 
 export function openEventStream(path) {
-  return new EventSource(apiUrl(path), { withCredentials: true });
+  return new EventSource(apiUrl(path));
 }

@@ -16,8 +16,8 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(), contentSecurityPolicy(VITE_API_BASE_URL), dettavoServiceWorker(BUILD_ID)],
     define: { __APP_BUILD_ID__: JSON.stringify(BUILD_ID) },
-    server: { port: 2061, strictPort: true, host: '127.0.0.1' },
-    preview: { port: 2061, strictPort: true, host: '127.0.0.1' },
+    server: { port: 2061, strictPort: true, host: 'localhost' },
+    preview: { port: 2061, strictPort: true, host: 'localhost' },
     resolve: {
       alias: {
         '@': src(''),

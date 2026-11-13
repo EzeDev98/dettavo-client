@@ -2,7 +2,7 @@
 const SHELL_CACHE_PREFIX = 'dettavo-shell-';
 
 // In development nothing may be served from a cache, so remove any worker (and its caches) left behind by
-// `npm run preview`, which uses this same address (127.0.0.1:2061).
+// `npm run preview`, which uses this same address (localhost:2061).
 async function removeWorkerAndCaches() {
   const registrations = await navigator.serviceWorker.getRegistrations();
   await Promise.all(registrations.map((registration) => registration.unregister()));

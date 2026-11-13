@@ -1,0 +1,243 @@
+/* The transcript pane, from the approved prototype: .tpane, .pb, .tx, .para, .w, .gap and .cdiv, then 5e's .prep,
+   .prow and .empty. The pane header is the editor's shared .pane-header. */
+.transcript-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border-right: var(--border-width) solid var(--color-line);
+}
+
+.pause-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap);
+  padding: var(--gap) var(--gutter);
+  border-bottom: var(--border-width) solid var(--color-line);
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+}
+
+.pause-bar__muted { color: var(--color-text-muted); }
+.pause-bar__spacer { flex: 1; }
+
+.transcript-pane__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.transcript-pane__scroll {
+  flex: 1;
+  min-height: 0;
+  padding: var(--gutter);
+  overflow: auto;
+}
+
+.transcript-pane__empty {
+  max-width: var(--transcript-measure);
+  padding: var(--card-pad);
+  border: var(--border-width) dashed var(--color-field-line);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+}
+
+/* ---- The transcript (virtual list: rows are placed with translateY and measured, so spacing is padding) */
+.transcript-view {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.transcript-view__list { position: relative; }
+
+.transcript-view__row {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  padding: 0 var(--gutter);
+}
+
+.transcript-view__row--divider { padding-bottom: var(--card-gap); }
+.transcript-view__row--paragraph,
+.transcript-view__row--state,
+.transcript-view__row--noSpeech { padding-bottom: var(--gutter); }
+
+.clip-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--card-gap);
+  max-width: var(--transcript-measure);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+}
+
+.clip-divider::before {
+  content: "";
+  flex: none;
+  width: var(--clip-marker-size);
+  height: var(--clip-marker-size);
+  background: var(--color-accent);
+  border-radius: var(--menu-radius);
+}
+
+.transcript-view__note {
+  max-width: var(--transcript-measure);
+  padding-left: calc(var(--paragraph-time-column) + var(--gap));
+  color: var(--color-text-muted);
+}
+
+.paragraph {
+  display: grid;
+  grid-template-columns: var(--paragraph-time-column) 1fr;
+  gap: var(--gap);
+  max-width: var(--transcript-measure);
+}
+
+.paragraph__time {
+  padding: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-md);
+  text-align: left;
+  transition: color var(--motion-hover) var(--ease-standard);
+}
+
+@media (hover: hover) {
+  .paragraph__time:hover { color: var(--color-accent); }
+}
+
+.paragraph__text {
+  font-size: var(--text-md);
+  line-height: var(--leading-md);
+}
+
+.transcript-token {
+  display: inline;
+  padding: var(--token-pad-y) 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--motion-hover) var(--ease-standard);
+}
+
+@media (hover: hover) {
+  .transcript-token:hover { background: var(--color-hover); }
+}
+
+/* A pause of 0.3 s or more: a chip with its length. */
+.transcript-token--pause {
+  margin: 0 var(--badge-pad-x) 0 0;
+  padding: var(--token-pad-y) var(--badge-pad-x);
+  border: var(--border-width) solid var(--color-field-line);
+  border-radius: var(--menu-radius);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+}
+
+.transcript-token--hidden { display: none; }
+
+/* Pause chips, as in the prototype: removed has a red border; over the pause bar's threshold and untouched is
+   amber; trimmed is green and shows what it keeps. A selection still shows on them. */
+.transcript-token--pause.transcript-token--removed { border-color: var(--color-removed); }
+
+.transcript-token--long,
+.transcript-token--long:hover {
+  background: var(--color-pause-long-tint);
+  border-color: var(--color-pause-long);
+  color: var(--color-pause-long);
+}
+
+.transcript-token--trimmed,
+.transcript-token--trimmed:hover {
+  background: var(--color-pause-trimmed-tint);
+  border-color: var(--color-pause-trimmed);
+  color: var(--color-pause-trimmed);
+}
+
+.transcript-token--selected,
+.transcript-token--selected:hover {
+  background: var(--color-selection);
+  color: var(--color-on-selection);
+}
+
+/* A removed word: red, struck through, on a red tint. As in the prototype it wins over the selection. */
+.transcript-token--removed:not(.transcript-token--pause),
+.transcript-token--removed:not(.transcript-token--pause):hover {
+  background: var(--color-removed-tint);
+  color: var(--color-removed);
+  text-decoration: line-through;
+}
+
+/* The playing word (prototype .w.cur), set by the player outside React. As in the prototype it wins over the rest. */
+.transcript-token.transcript-token--current {
+  background: var(--color-current-word);
+  color: var(--color-on-selection);
+}
+
+/* ---- The Cuts tab (prototype .row) */
+.cuts-list { max-width: var(--transcript-measure); }
+
+.cuts-list__row {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  padding: var(--card-gap) 0;
+  border-top: var(--border-width) solid var(--color-line);
+}
+
+.cuts-list__row:first-child { border-top: 0; }
+
+.cuts-list__time {
+  flex: none;
+  width: var(--cut-time-width);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.cuts-list__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-removed);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- Before a clip is on the timeline (5e) */
+.getting-ready {
+  display: grid;
+  gap: var(--card-pad);
+  max-width: var(--transcript-measure);
+}
+
+.getting-ready__title {
+  font-size: var(--text-lg);
+  line-height: var(--leading-lg);
+}
+
+.getting-ready__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--card-gap) var(--gap);
+  padding: var(--card-pad);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius);
+}
+
+.getting-ready__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.getting-ready__state,
+.getting-ready__note { color: var(--color-text-muted); }
+
+.getting-ready__bar { grid-column: 1 / -1; }

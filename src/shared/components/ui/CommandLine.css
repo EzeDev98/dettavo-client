@@ -1,0 +1,26 @@
+/* --flow-inset is the colour of things set into a first-run card (FlowScreen.css). */
+.ui-command {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  height: var(--command-height);
+  padding: 0 var(--command-pad-end) 0 var(--card-pad);
+  background: var(--flow-inset, var(--color-surface));
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+}
+
+.ui-command__text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font: inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ui-command__copy { color: var(--color-text-muted); }

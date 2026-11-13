@@ -2,8 +2,10 @@
 // into the catch-all route.
 export const ROUTES = Object.freeze({
   projects: '/',
+  // The first run in a browser tab: Onboarding, then Install and the hand-off.
+  welcome: '/welcome',
+  install: '/install',
   project: '/projects/:projectId',
-  pair: '/pair',
   setup: '/setup',
 
   // Development only: App.jsx adds these routes in dev builds.

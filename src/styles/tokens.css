@@ -18,26 +18,28 @@
   --p-white: #ffffff;
   --p-black: #000000;
 
-  --p-blue-600: #2f6fc6;
-  --p-blue-500: #3a7bd6;
-  --p-blue-300: #7ab0f5;
+  /* Electric lavender, the primary accent (replaces the prototype's blue, 13 Nov 2026). */
+  --p-lavender-300: #c4a1ff;
+  --p-lavender-200: #d4baff;
+  --p-on-lavender: #1e1e1e;
   --p-red-300: #f48771;
   --p-amber-300: #e5a06a;
   --p-green-300: #5fc4a2;
 
-  --p-wave: #a9aeb7;
   --p-wave-bg: #1b1b1c;
   --p-stage: #161616;
+  --p-clip: #2f2840;
+  --p-clip-line: #5d4f80;
   --p-placeholder-icon: #3a3a3a;
   --p-badge: rgba(0, 0, 0, 0.45);
 
-  --p-selection: rgba(47, 111, 198, 0.5);
-  --p-current-word: rgba(122, 176, 245, 0.2);
-  --p-focus-tint: rgba(122, 176, 245, 0.3);
+  --p-selection: rgba(196, 161, 255, 0.5);
+  --p-current-word: rgba(196, 161, 255, 0.2);
+  --p-focus-tint: rgba(196, 161, 255, 0.3);
   --p-hover: rgba(255, 255, 255, 0.06);
   --p-removed: rgba(244, 135, 113, 0.13);
   --p-cut-band: rgba(244, 135, 113, 0.12);
-  --p-selection-band: rgba(47, 111, 198, 0.35);
+  --p-selection-band: rgba(196, 161, 255, 0.35);
   --p-pause-long: rgba(229, 160, 106, 0.1);
   --p-pause-trimmed: rgba(95, 196, 162, 0.1);
   --p-scrim: rgba(0, 0, 0, 0.5);
@@ -51,28 +53,32 @@
   --color-text-muted: var(--p-muted);
   --color-line: var(--p-line);
   --color-field-line: var(--p-field);
-  --color-brand: var(--p-blue-600);
-  --color-brand-hover: var(--p-blue-500);
-  --color-on-brand: var(--p-white);
-  --color-accent: var(--p-blue-300);
+  --color-brand: var(--p-lavender-300);
+  --color-brand-hover: var(--p-lavender-200);
+  --color-on-brand: var(--p-on-lavender); /* dark text: white on lavender is too faint to read */
+  --color-accent: var(--p-lavender-300);
   --color-hover: var(--p-hover);
   --color-focus-tint: var(--p-focus-tint);
   --color-scrim: var(--p-scrim);
   --color-menu: var(--p-black);
   --color-stage: var(--p-stage);
+  --color-audio-stage: var(--p-black);
   --color-accent-tint: var(--p-current-word);
   --color-placeholder-icon: var(--p-placeholder-icon);
   --color-badge: var(--p-badge);
+  --color-brand-tint: color-mix(in srgb, var(--color-brand) 12%, transparent); /* emoji tiles */
 
   /* States. Always paired with a word or icon, never colour alone. */
   --color-error: var(--p-red-300);
   --color-connected: var(--p-green-300);
   --color-under: var(--p-green-300);  /* Ahorra's "good" state: success toasts, Bar */
   --color-over: var(--p-amber-300);   /* Ahorra's "watch out" state: Bar */
+  --color-ok: var(--p-green-300);     /* Setup: a tool that was found */
 
   /* Editor */
   --color-selection: var(--p-selection);
   --color-selection-band: var(--p-selection-band);
+  --color-on-selection: var(--p-white);
   --color-current-word: var(--p-current-word);
   --color-removed: var(--p-red-300);
   --color-removed-tint: var(--p-removed);
@@ -81,13 +87,15 @@
   --color-pause-long-tint: var(--p-pause-long);
   --color-pause-trimmed: var(--p-green-300);
   --color-pause-trimmed-tint: var(--p-pause-trimmed);
-  --color-waveform: var(--p-wave);
-  --color-waveform-bg: var(--p-wave-bg);
-  --color-waveform-cut: var(--p-red-300);
+  --color-timeline-bg: var(--p-wave-bg);
+  --color-clip: var(--p-clip);
+  --color-clip-line: var(--p-clip-line);
   --color-playhead: var(--p-text);
+  --caption-shadow: 0 1px 2px var(--p-black);
 
   --font-family: "Red Hat Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-weight: 400;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace; /* Terminal commands */
 
   --text-xs: 12px;     --leading-xs: 16px;
   --text-sm: 14px;     --leading-sm: 20px;
@@ -107,6 +115,7 @@
   --motion-base: 260ms;
   --motion-fly: 440ms;
   --motion-stagger: 70ms;
+  --motion-loop: 1600ms; /* the Install hero's arrow, over and over */
   --motion-reduced: 120ms;
   --motion-hover: 120ms; /* colour fade on hover, nothing moves */
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
@@ -123,6 +132,7 @@
   --icon-size: 18px;
   --icon-stroke: 1.4;
   --opacity-disabled: 0.4;
+  --opacity-dragging: 0.4;
   --card-pad: 12px;
   --gap: 8px;
   --gutter: 16px;
@@ -141,11 +151,36 @@
   --tab-underline: 2px;
   --transcript-measure: 680px;
   --paragraph-time-column: 52px;
-  --waveform-height: 112px;
+  --timeline-height: 112px;
+  --clip-block-pad-y: 8px;
+  --clip-block-pad-x: 10px;
+  --clip-block-gap: 2px;
+  --clip-block-accent: 2px;     /* the accent line at a block's left edge */
+  --cut-edge-width: 1px;
+  --ruler-tick-minor: 5px;
+  --ruler-tick-major: 10px;
+  --ruler-label-offset: 3px;
+  --separator-height: 20px;
+  --stage-min-width: 240px;
+  --stage-height-reserve: 400px; /* the stage is as wide as 16:9 allows in the window height minus this */
+  --stage-icon-size: 64px;
+  --stage-icon-stroke: 1;
+  --overlay-offset: 8px;        /* the timecode chip and the caption inside the stage */
+  --chip-pad-y: 2px;
+  --token-pad-y: 1px;           /* words and pause chips in the transcript */
+  --clip-marker-size: 8px;      /* the accent square before a clip's name in the transcript */
+  --cut-time-width: 124px;      /* the times column of the Cuts list */
   --ruler-height: 24px;
   --playhead-width: 2px;
   --progress-height: 4px;
   --status-dot-size: 8px;
+
+  /* Clips tray (prototype .tray, .tiles, .tile) */
+  --tray-pad-bottom: 10px;
+  --clip-tile-width: 128px;
+  --clip-tiles-pad-bottom: 2px;
+  --clip-progress-height: 3px;
+  --clip-delete-offset: 4px;
 
   /* Home */
   --home-width: 960px;
@@ -157,6 +192,39 @@
   --card-gap: 6px;
   --badge-pad-x: 6px;
   --badge-offset: 6px;
+
+  /* First-run flow (prototype 5f: Onboarding, Install, hand-off, Setup, Service down) */
+  --flow-screen-width: 500px;
+  --flow-bar-height: 56px;
+  --flow-section-gap: 24px;    /* between the body's parts, above the footer, and inside the card */
+  --flow-back-offset: 4px;     /* the back button moves left by this, so its icon lines up with the card */
+  --flow-list-delay: 200ms;    /* a list's first card rises this long after the screen */
+  --rise: 10px;                /* how far a screen or card rises as it appears */
+  --emoji-tile-size: 40px;
+  --emoji-tile-emoji: 20px;
+  --hero-size: 72px;
+  --hero-emoji: 48px;
+  --feed-width: 120px;
+  --feed-arrow-size: 30px;
+  --feed-arrow-overlap: 8px;
+  --feed-from: -18px;
+  --feed-to: 12px;
+  --feed-out: 22px;
+  --command-height: 40px;
+  --command-pad-end: 4px;
+  --field-label-gap: 6px;
+  --logo-mark-size: 28px;
+
+  /* Onboarding demo: two filler words are selected and cut, the cut card drops in, Export is pressed. */
+  --demo-line-pad-y: 10px;
+  --demo-cut-duration: 900ms;
+  --demo-first-cut-delay: 700ms;
+  --demo-second-cut-delay: 1400ms;
+  --demo-result-delay: 2500ms;
+  --demo-tap-duration: 500ms;
+  --demo-tap-delay: 3500ms;
+  --nudge-duration: 1400ms;
+  --nudge-distance: 5px;
 }
 
 /* Reduced motion: hover changes colour at once. */

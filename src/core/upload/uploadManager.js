@@ -54,7 +54,6 @@ function startNext() {
   const xhr = new XMLHttpRequest();
   running = { key: next.key, xhr };
   xhr.open('PUT', apiUrl(endpoints.clipSource(next.projectId, next.clipId)));
-  xhr.withCredentials = true;
   xhr.setRequestHeader('X-File-Name', encodeURIComponent(next.file.name));
 
   xhr.upload.onprogress = (event) => update(next.key, { loaded: event.loaded }, false);

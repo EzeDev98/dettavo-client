@@ -5,9 +5,12 @@ import { cx } from '@shared/utils/classNames.js';
 // variant: 'primary' | 'secondary' | 'ghost' | 'danger'. size: 'default' (28px) | 'export' (32px: the top bar's
 // Export and the export dialog's buttons).
 // busy keeps the label in place (so the width never changes), shows a spinner and ignores clicks.
+// waiting shows a spinner before the label and disables the button (the first-run screens' block buttons).
 export default function Button({
   variant = 'primary',
   busy = false,
+  waiting = false,
+  disabled = false,
   block = false,
   size = 'default',
   type = 'button',
@@ -35,11 +38,15 @@ export default function Button({
         size === 'export' && 'ui-button--export',
         className,
       )}
-      aria-busy={busy || undefined}
+      aria-busy={busy || waiting || undefined}
+      disabled={disabled || waiting}
       onClick={handleClick}
       {...rest}
     >
-      <span className="ui-button__label">{children}</span>
+      <span className="ui-button__label">
+        {waiting && <Spinner size="sm" decorative />}
+        {children}
+      </span>
       {busy && <Spinner size="sm" className="ui-button__spinner" decorative />}
     </button>
   );

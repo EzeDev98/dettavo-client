@@ -3,7 +3,7 @@ import { cx } from '@shared/utils/classNames.js';
 import { modelName, useSystemStatus } from '@features/setup/systemStatus.js';
 import './StatusBar.css';
 
-// "127.0.0.1:2060", from VITE_API_BASE_URL.
+// "localhost:2060", from VITE_API_BASE_URL.
 const serverAddress = new URL(env.apiBaseUrl).host;
 
 // Guide 8.9. The dot is never the only signal: the words beside it say the same thing.

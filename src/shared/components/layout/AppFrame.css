@@ -3,7 +3,9 @@
 .ui-app-frame {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
-  min-height: 100dvh;
+  height: 100dvh;
 }
 
-.ui-app-frame__main { min-height: 0; }
+/* The window never grows with its screen: a long screen scrolls in here, and the editor fills it exactly so the
+   Clips tray stays at the foot of the transcript pane. */
+.ui-app-frame__main { min-height: 0; overflow: auto; }

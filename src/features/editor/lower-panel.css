@@ -1,0 +1,142 @@
+/* The lower panel, from the approved prototype: .lower, .bar, .vsep, .ruler, .wf and .wfe. */
+.lower-panel {
+  background: var(--color-surface);
+  border-top: var(--border-width) solid var(--color-line);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap);
+  padding: var(--gap) var(--gutter);
+  border-bottom: var(--border-width) solid var(--color-line);
+}
+
+.toolbar__divider {
+  width: var(--border-width);
+  height: var(--separator-height);
+  margin: 0 calc(var(--gap) / 2);
+  background: var(--color-line);
+}
+
+.toolbar__spacer { flex: 1; }
+.toolbar__muted { color: var(--color-text-muted); }
+
+.timeline-ruler {
+  position: relative;
+  height: var(--ruler-height);
+  margin: 0 var(--gutter);
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+}
+
+/* The ruler keeps its height while hidden, so the timeline never moves (prototype: visibility hidden). */
+.timeline-ruler--hidden { visibility: hidden; }
+
+.timeline-ruler__tick {
+  position: absolute;
+  bottom: 0;
+  width: var(--border-width);
+  height: var(--ruler-tick-minor);
+  background: var(--color-field-line);
+}
+
+.timeline-ruler__tick--major { height: var(--ruler-tick-major); }
+
+.timeline-ruler__label {
+  position: absolute;
+  top: 0;
+  font-weight: var(--font-weight);
+  white-space: nowrap;
+  transform: translateX(var(--ruler-label-offset));
+}
+
+.timeline-track {
+  position: relative;
+  height: var(--timeline-height);
+  margin: 0 var(--gutter) var(--card-pad);
+  overflow: hidden;
+  background: var(--color-timeline-bg);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--menu-radius);
+  cursor: pointer;
+}
+
+/* One block per timeline clip (prototype .clip): full height, 2 px corners, the accent line at its left. */
+.timeline-block {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: grid;
+  align-content: start;
+  gap: var(--clip-block-gap);
+  padding: var(--clip-block-pad-y) var(--clip-block-pad-x);
+  overflow: hidden;
+  background: var(--color-clip);
+  border: var(--border-width) solid var(--color-clip-line);
+  border-radius: var(--menu-radius);
+  box-shadow: inset var(--clip-block-accent) 0 0 var(--color-accent);
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+  cursor: grab;
+}
+
+.timeline-block--dragging { opacity: var(--opacity-dragging); }
+
+.timeline-block__name {
+  overflow: hidden;
+  color: var(--color-text);
+  font-weight: var(--font-weight);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-block__length { color: var(--color-text-muted); }
+
+/* Cut regions (prototype .seg), the selection (.sband), the drop marker (.ins) and the playhead (.ph). */
+.timeline-cut,
+.timeline-band,
+.timeline-marker,
+.timeline-playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.timeline-cut {
+  background: var(--color-cut-band);
+  border-right: var(--cut-edge-width) solid var(--color-error);
+  border-left: var(--cut-edge-width) solid var(--color-error);
+}
+
+.timeline-band { background: var(--color-selection-band); }
+
+.timeline-marker,
+.timeline-playhead {
+  width: var(--playhead-width);
+  margin-left: calc(var(--playhead-width) / -2);
+}
+
+.timeline-marker {
+  z-index: 2;
+  background: var(--color-accent);
+}
+
+.timeline-playhead {
+  left: 0;
+  background: var(--color-playhead);
+}
+
+.timeline-track__hint {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  pointer-events: none;
+}

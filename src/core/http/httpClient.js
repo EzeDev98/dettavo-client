@@ -1,10 +1,9 @@
-// The only place the app talks to dettavo-server. Ahorra's client, without tokens: the pairing cookie (te_session)
-// is the session, so every request is sent with credentials: 'include' to the base URL from env.js.
+// The only place the app talks to dettavo-server. Ahorra's client, without tokens or cookies: every request goes to
+// the base URL from env.js, and the server accepts it because it comes from the app's own origin.
 import { env } from '@core/config/env.js';
 
 const FALLBACK_MESSAGES = {
   0: "Dettavo's local service isn't running. Start dettavo-server and try again.",
-  401: 'This browser is not paired with the local service.',
   403: 'The local service refused this request.',
   404: 'Not found.',
   409: 'This changed somewhere else. Reload and try again.',
@@ -32,7 +31,6 @@ export class ApiError extends Error {
   }
 
   get isNetwork() { return this.status === 0; }
-  get isNotPaired() { return this.status === 401; }
   get isForbidden() { return this.status === 403; }
   get isNotFound() { return this.status === 404; }
   get isConflict() { return this.status === 409; }
@@ -83,7 +81,6 @@ async function request(method, path, { body, params, headers, signal } = {}) {
       headers: requestHeaders,
       body: payload,
       signal,
-      credentials: 'include',
     });
   } catch (cause) {
     if (cause?.name === 'AbortError') throw cause;

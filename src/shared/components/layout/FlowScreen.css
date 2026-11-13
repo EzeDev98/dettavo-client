@@ -1,0 +1,101 @@
+/* The first-run screens (prototype .flow, .scr, .sin, .sbar, .sgrp). */
+.ui-flow {
+  --flow-inset: var(--color-surface);
+  height: 100%;
+  overflow: auto;
+  background: var(--color-bg);
+}
+
+.ui-flow__screen {
+  display: flex;
+  justify-content: center;
+  min-height: 100%;
+}
+
+.ui-flow__inner {
+  display: flex;
+  flex-direction: column;
+  width: min(calc(var(--flow-screen-width) + var(--gutter) * 2), 100%);
+  padding: 0 var(--gutter);
+}
+
+.ui-flow__bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  height: var(--flow-bar-height);
+}
+
+.ui-flow__back { margin-left: calc(var(--flow-back-offset) * -1); }
+
+.ui-flow__group {
+  display: flex;
+  flex-direction: column;
+  margin-block: auto;
+  padding-bottom: var(--gutter);
+}
+
+/* On a card, the banners, cards, commands and fields inside take the page colour so they stand apart from it. */
+.ui-flow__screen--card .ui-flow__inner { padding-bottom: var(--gutter); }
+
+.ui-flow__screen--card .ui-flow__group {
+  --flow-inset: var(--color-bg);
+  padding: var(--flow-section-gap) var(--gutter);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius);
+  animation: rise var(--motion-base) var(--ease-out) both;
+}
+
+.ui-flow__head {
+  display: grid;
+  gap: calc(var(--gap) / 2);
+  margin: var(--gutter) 0;
+  text-align: center;
+}
+
+.ui-flow__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--leading-lg);
+}
+
+.ui-flow__description {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  color: var(--color-text-muted);
+}
+
+.ui-flow__head--lead .ui-flow__description {
+  font-size: var(--text-md);
+  line-height: var(--leading-md);
+}
+
+.ui-flow__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--flow-section-gap);
+}
+
+.ui-flow__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  padding-top: var(--flow-section-gap);
+}
+
+.ui-flow__hero {
+  display: grid;
+  place-items: center;
+  width: var(--hero-size);
+  height: var(--hero-size);
+  margin: 0 auto;
+  font-size: var(--hero-emoji);
+  line-height: 1;
+  animation: pop var(--motion-fly) var(--ease-out) both;
+}
+
+/* Reduced motion: everything is simply there. The Spinner keeps its own slow pulse. */
+@media (prefers-reduced-motion: reduce) {
+  .ui-flow *:not(.ui-spinner) { animation: none !important; }
+}

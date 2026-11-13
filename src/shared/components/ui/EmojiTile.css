@@ -1,0 +1,11 @@
+.ui-emoji-tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--emoji-tile-size);
+  height: var(--emoji-tile-size);
+  border-radius: var(--radius);
+  background: var(--color-brand-tint);
+  font-size: var(--emoji-tile-emoji);
+  line-height: 1;
+}

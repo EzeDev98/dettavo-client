@@ -1,0 +1,6 @@
+.ui-field-label {
+  display: block;
+  margin-bottom: var(--field-label-gap);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}

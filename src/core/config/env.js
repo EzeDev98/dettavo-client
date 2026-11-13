@@ -11,4 +11,6 @@ new URL(raw);
 export const env = Object.freeze({
   // Includes the server's base path (/api/v1), no trailing slash.
   apiBaseUrl: raw.replace(/\/+$/, ''),
+  // Development only: lets the whole app run in a browser tab without installing it. Ignored in a build.
+  skipInstallGuard: import.meta.env.DEV && import.meta.env.VITE_SKIP_INSTALL_GUARD === 'true',
 });

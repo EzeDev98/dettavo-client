@@ -66,8 +66,7 @@ export const appUpdate = {
   },
 
   // Full reset of the client's own files: removes the service worker, every cache, sessionStorage and localStorage, then
-  // reloads into the new build. Projects and edits live in dettavo-server, and the pairing cookie is HttpOnly (scripts
-  // cannot clear it), so nothing is lost and the browser stays paired. Each step is best effort.
+  // reloads into the new build. Projects and edits live in dettavo-server, so nothing is lost. Each step is best effort.
   async install() {
     const target = state.latest ?? RUNNING_BUILD;
     const attempt = async (step) => {

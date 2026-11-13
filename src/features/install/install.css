@@ -1,0 +1,139 @@
+/* Onboarding, Install and the hand-off (prototype 5f). The frame, cards and banners are shared components. */
+
+/* Onboarding: the logo above the title. */
+.onboarding__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap);
+  font-size: var(--text-lg);
+  line-height: var(--leading-lg);
+}
+
+.onboarding__mark {
+  width: var(--logo-mark-size);
+  height: var(--logo-mark-size);
+  stroke-width: var(--icon-stroke);
+  color: var(--color-accent);
+}
+
+/* Onboarding demo: the transcript line, then the cut card. */
+.onboarding__demo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  margin-bottom: var(--gutter);
+}
+
+.onboarding__line {
+  padding: var(--demo-line-pad-y) var(--card-pad);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius);
+  font-size: var(--text-md);
+  line-height: var(--leading-md);
+}
+
+.onboarding__cut {
+  padding: var(--token-pad-y) 0;
+  border-radius: var(--radius-sm);
+  animation: onboarding-cut var(--demo-cut-duration) linear both;
+}
+
+.onboarding__cut--first { animation-delay: var(--demo-first-cut-delay); }
+.onboarding__cut--second { animation-delay: var(--demo-second-cut-delay); }
+
+.onboarding__result {
+  display: flex;
+  align-items: center;
+  gap: var(--card-pad);
+  padding: var(--card-pad);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius);
+  animation: drop var(--motion-base) var(--ease-out) var(--demo-result-delay) both;
+}
+
+.onboarding__result-text {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.onboarding__result-words {
+  display: block;
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+  color: var(--color-text-muted);
+}
+
+.onboarding__result-saved {
+  font-size: var(--text-md);
+  line-height: var(--leading-md);
+  color: var(--color-error);
+}
+
+.onboarding__export {
+  pointer-events: none;
+  animation: onboarding-tap var(--demo-tap-duration) ease var(--demo-tap-delay) both;
+}
+
+/* Get started: the arrow nudges toward the next screen. */
+.onboarding__nudge { animation: onboarding-nudge var(--nudge-duration) ease-in-out infinite; }
+
+/* Install hero: the arrow flies into the laptop. */
+.install__feed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--feed-width);
+  height: var(--hero-size);
+  margin: 0 auto;
+}
+
+.install__feed-arrow {
+  width: var(--feed-arrow-size);
+  height: var(--feed-arrow-size);
+  margin-right: calc(var(--feed-arrow-overlap) * -1);
+  fill: var(--color-brand);
+  animation: install-feed var(--motion-loop) ease-in infinite;
+}
+
+.install__feed-laptop {
+  position: relative;
+  z-index: 1;
+  font-size: var(--hero-emoji);
+  line-height: 1;
+  animation: install-receive var(--motion-loop) ease-in-out infinite;
+}
+
+/* Hand-off: the line under the banner once the tab could not close itself. */
+.install__note {
+  text-align: center;
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  color: var(--color-text-muted);
+}
+
+@keyframes onboarding-cut {
+  0% { background: transparent; }
+  45% { background: var(--color-selection); color: var(--color-on-selection); }
+  46%, 100% { background: var(--color-removed-tint); color: var(--color-removed); text-decoration: line-through; }
+}
+
+@keyframes onboarding-tap { 50% { transform: scale(0.94); } }
+@keyframes onboarding-nudge { 50% { transform: translateX(var(--nudge-distance)); } }
+
+@keyframes install-feed {
+  0% { transform: translateX(var(--feed-from)); opacity: 0; }
+  25% { opacity: 1; }
+  75% { transform: translateX(var(--feed-to)); opacity: 1; }
+  100% { transform: translateX(var(--feed-out)); opacity: 0; }
+}
+
+@keyframes install-receive {
+  0%, 70% { transform: none; }
+  85% { transform: scale(1.07); }
+  100% { transform: none; }
+}

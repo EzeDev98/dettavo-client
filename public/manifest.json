@@ -2,11 +2,16 @@
   "id": "/",
   "name": "Dettavo",
   "short_name": "Dettavo",
-  "description": "Edit recordings by editing their transcript.",
+  "description": "Edit a recording by editing its words.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#1e1e1e",
   "theme_color": "#1e1e1e",
-  "icons": []
+  "related_applications": [{ "platform": "webapp", "url": "http://localhost:2061/manifest.json" }],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
 }

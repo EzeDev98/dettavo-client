@@ -1,0 +1,40 @@
+.ui-feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* --flow-inset is the colour of things set into a first-run card (FlowScreen.css). */
+.ui-feature-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--card-pad);
+  padding: var(--card-pad);
+  background: var(--flow-inset, var(--color-surface));
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius);
+  animation: rise var(--motion-base) var(--ease-out) both;
+  animation-delay: calc(var(--flow-list-delay) + var(--index) * var(--motion-stagger));
+}
+
+.ui-feature-card__title { font-size: var(--text-md); line-height: var(--leading-md); }
+
+.ui-feature-card__description {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  color: var(--color-text-muted);
+}
+
+.ui-feature-card__description--strong { color: var(--color-text); }
+
+.ui-feature-card__small {
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+  color: var(--color-text-muted);
+}
+
+.ui-feature-card__small--ok { color: var(--color-ok); }
+.ui-feature-card__small--missing { color: var(--color-error); }

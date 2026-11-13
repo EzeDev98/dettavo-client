@@ -1,57 +1,11 @@
-/* Pair, Setup and Service-down: one centred column on the app background. Step 5d replaces the look with
-   the approved prototypes; the structure stays. */
-.setup-screen {
+/* Setup and Service down are built from the shared first-run components (FlowScreen and the ui folder).
+   Only the Service-down waiting line is their own. */
+.setup__waiting {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100%;
-  padding: var(--gutter);
-}
-
-.setup-screen__body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gutter);
-  width: 100%;
-  max-width: var(--content-width);
-}
-
-/* A command to copy: the app's one family, on a raised field, selected whole with one click. */
-.setup-command {
-  display: block;
-  padding: var(--gap) var(--card-pad);
-  background: var(--color-raise);
-  border: var(--border-width) solid var(--color-line);
-  border-radius: var(--radius);
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: var(--text-xs);
-  line-height: var(--leading-xs);
-  overflow-wrap: anywhere;
-  user-select: all;
-}
-
-.setup-list {
-  display: flex;
-  flex-direction: column;
   gap: var(--gap);
-}
-
-.setup-list__item {
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--gap) / 2);
-  padding: var(--card-pad);
-  background: var(--color-surface);
-  border: var(--border-width) solid var(--color-line);
-  border-radius: var(--radius);
-}
-
-.setup-list__name { color: var(--color-text); }
-
-.setup-screen__actions {
-  display: flex;
-  justify-content: center;
-  gap: var(--gap);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  color: var(--color-text-muted);
 }

@@ -1,5 +1,5 @@
-// The server's status (GET /system/status) and pairing (POST /session/pair). The status call is open without
-// pairing, so it answers three questions at once: is the server running, is this browser paired, are the tools ready.
+// The server's status (GET /system/status). It answers two questions at once: is the server running, and are the
+// tools ready.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { httpClient } from '@core/http/httpClient.js';
 import { endpoints } from '@core/http/endpoints.js';
@@ -28,14 +28,6 @@ export function useRefreshSystemStatus() {
   return useMutation({
     mutationFn: () => fetchSystemStatus({ refresh: true }),
     onSuccess: (status) => queryClient.setQueryData(queryKeys.system.status(), status),
-  });
-}
-
-export function usePairBrowser() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (key) => httpClient.post(endpoints.sessionPair, { key }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.system.all }),
   });
 }
 

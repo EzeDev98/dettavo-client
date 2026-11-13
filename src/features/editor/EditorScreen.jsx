@@ -1,131 +1,181 @@
-import { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import TopBar, { Brand, Spacer } from '@shared/components/layout/TopBar.jsx';
-import Bar from '@shared/components/ui/Bar.jsx';
 import Button from '@shared/components/ui/Button.jsx';
+import FilePicker from '@shared/components/ui/FilePicker.jsx';
 import Spinner from '@shared/components/ui/Spinner.jsx';
 import { useToast } from '@shared/components/ui/toastContext.js';
 import useFileDrop from '@shared/hooks/useFileDrop.js';
+import { formatClipCount } from '@shared/utils/formatting.js';
+import { queryKeys } from '@core/data/queryKeys.js';
+import { enqueueUploads, retryUpload } from '@core/upload/uploadManager.js';
 import { apiUrl } from '@core/http/apiUrl.js';
 import { endpoints } from '@core/http/endpoints.js';
-import { queryKeys } from '@core/data/queryKeys.js';
-import { retryUpload, useUploads } from '@core/upload/uploadManager.js';
+import usePlayback from '@core/player/usePlayback.js';
 import { ROUTES } from '@app/router/routes.js';
-import { useProject } from '@features/projects/projectsApi.js';
 import { addFileErrorMessage, addFilesToProject, isMediaFile } from '@features/projects/addFiles.js';
-import useClipJobs from './useClipJobs.js';
+import { useRetryClip } from './clipsApi.js';
+import { useEditor } from './editorContext.js';
+import { PlayerContext } from './playerContext.js';
+import useClips from './useClips.js';
+import useAutosave from './useAutosave.js';
+import useEditorKeyboard from './useEditorKeyboard.js';
+import ClipsTray from './ClipsTray.jsx';
+import DeleteClipModal from './DeleteClipModal.jsx';
+import EditorProvider from './EditorProvider.jsx';
+import ExportAction from './ExportAction.jsx';
+import LowerPanel from './LowerPanel.jsx';
+import SaveState from './SaveState.jsx';
+import TranscriptPane from './TranscriptPane.jsx';
+import VideoPane from './VideoPane.jsx';
 import './editor-screen.css';
 
-// STAND-IN, Build Plan Step 9 only. It opens at once after adding from Home and lists each clip with its upload,
-// preparing or queue state, so 9c and 9d can be tested. Steps 11 to 13 replace it with the real editor
-// (prototype 5b to 5e): the Clips tray, the timeline and the transcript.
-const SETTLED = new Set(['READY', 'FAILED', 'PREPARED']);
-
+// The editor (guide 8.5 to 8.12), laid out as the prototype's .app: the top bar, then the transcript pane (with the
+// Clips tray at its foot) beside the video pane, then the lower panel. The status bar is the app frame's.
 export default function EditorScreen() {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const toast = useToast();
   const queryClient = useQueryClient();
-  const uploads = useUploads(projectId);
-  const jobs = useClipJobs(projectId);
-  const uploading = Object.values(uploads).some((upload) => upload.status === 'waiting' || upload.status === 'uploading');
-  const project = useProject(projectId, {
-    // Until Step 11 brings live clip state, the project is fetched again while anything is still moving.
-    refetchInterval: (query) => (uploading || query.state.data?.clips.some((clip) => !SETTLED.has(clip.state) && clip.state !== 'EMPTY') ? 1500 : false),
-  });
+  const toast = useToast();
+  const { project, items, jobs } = useClips(projectId);
+  const retry = useRetryClip(projectId);
+  const [deleting, setDeleting] = useState(null);
+  const pickerRef = useRef(null);
+  const reuploadPickerRef = useRef(null);
+  const reuploadClipId = useRef(null);
 
-  // A finished upload moves its clip to Preparing on the server.
-  const finishedUploads = Object.values(uploads).filter((upload) => upload.status === 'done').length;
-  useEffect(() => {
-    if (finishedUploads) queryClient.invalidateQueries({ queryKey: queryKeys.projects.detail(projectId) });
-  }, [finishedUploads, projectId, queryClient]);
-
-  // Files dropped in the editor join the open project (5e).
-  useFileDrop(async (picked) => {
+  // Files picked or dropped in the editor join the open project, at the end of the tray (5e).
+  const addFiles = async (picked) => {
     const files = picked.filter(isMediaFile);
-    if (!files.length) return;
+    if (!files.length) {
+      toast.show('Choose a video or audio file', { tone: 'error' });
+      return;
+    }
     const { error } = await addFilesToProject(projectId, files);
     if (error) toast.show(addFileErrorMessage(error), { tone: 'error' });
-    project.refetch();
-  });
+    queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
+  };
 
-  const clips = project.data?.clips ?? [];
+  const over = useFileDrop(addFiles);
+  const openPicker = () => pickerRef.current?.click();
+
+  const handleAction = (item) => {
+    const { clip, status } = item;
+    // Retry and Rebuild both start the clip's pipeline again (Rebuild: POST .../prepare).
+    if (status.action === 'retry' || status.action === 'rebuild') {
+      retry.mutate(item, { onError: (error) => toast.show(error.message, { tone: 'error' }) });
+      return;
+    }
+    // Try again: this tab still holds the file after a lost connection; otherwise the file is picked again.
+    if (!retryUpload(projectId, clip.id)) {
+      reuploadClipId.current = clip.id;
+      reuploadPickerRef.current?.click();
+    }
+  };
+
+  const reupload = ([file]) => {
+    if (reuploadClipId.current) enqueueUploads(projectId, [{ clipId: reuploadClipId.current, file }]);
+  };
+
+  // actions: the right end of the top bar, the save state and Export once the editor state exists.
+  const topBar = (actions) => (
+    <TopBar>
+      <Button variant="ghost" aria-label="Back to projects" onClick={() => navigate(ROUTES.projects)}>
+        <ArrowLeft aria-hidden="true" />
+        Projects
+      </Button>
+      <Brand />
+      {project.data && (
+        <span className="editor__crumb">{project.data.name} · {formatClipCount(items.length)}</span>
+      )}
+      <Spacer />
+      {actions}
+    </TopBar>
+  );
 
   return (
-    <div className="editor-stand-in">
-      <TopBar>
-        <Button variant="ghost" onClick={() => navigate(ROUTES.projects)}>
-          <ArrowLeft aria-hidden="true" />
-          Projects
+    <div className="editor">
+      {!project.data && topBar((
+        <Button size="export" disabled>
+          <Download aria-hidden="true" />
+          Export
         </Button>
-        <Brand />
-        {project.data && (
-          <span className="editor-stand-in__muted">
-            {project.data.name} · {clips.length} clip{clips.length === 1 ? '' : 's'}
-          </span>
-        )}
-        <Spacer />
-      </TopBar>
+      ))}
+      {project.isPending && (
+        <div className="editor__message">
+          <Spinner label="Opening the project" />
+        </div>
+      )}
+      {project.isError && (
+        <div className="editor__message">
+          <p className="editor__muted">{project.error.message}</p>
+        </div>
+      )}
+      {project.data && (
+        <EditorProvider key={projectId} project={project.data}>
+          {topBar((
+            <>
+              <SaveState />
+              <ExportAction projectId={projectId} jobs={jobs} />
+            </>
+          ))}
+          <EditorWorkspace
+            projectId={projectId}
+            items={items}
+            onAdd={openPicker}
+            tray={(
+              <ClipsTray
+                projectId={projectId}
+                items={items}
+                over={over}
+                busyClipId={retry.isPending ? retry.variables?.clip.id : null}
+                onAdd={openPicker}
+                onAction={handleAction}
+                onDelete={setDeleting}
+              />
+            )}
+          />
+        </EditorProvider>
+      )}
 
-      <div className="editor-stand-in__body">
-        {project.isPending && <Spinner label="Opening the project" />}
-        {project.isError && <p className="editor-stand-in__muted">{project.error.message}</p>}
-        {project.data && !clips.length && <p className="editor-stand-in__muted">No clips yet. Drop a video or audio file here.</p>}
-        {clips.map((clip) => (
-          <ClipRow key={clip.id} projectId={projectId} clip={clip} upload={uploads[clip.id]} job={jobs[clip.id]} />
-        ))}
-        <p className="editor-stand-in__muted">Step 9 stand-in. The Clips tray, timeline and transcript arrive in Steps 11 to 13.</p>
-      </div>
+      <FilePicker ref={pickerRef} onFiles={addFiles} />
+      <FilePicker ref={reuploadPickerRef} multiple={false} onFiles={reupload} />
+      <DeleteClipModal projectId={projectId} clip={deleting} onClose={() => setDeleting(null)} />
     </div>
   );
 }
 
-const percent = (fraction) => Math.floor(Math.max(0, Math.min(1, fraction)) * 100);
+// Everything below the top bar that reads the editor state, inside EditorProvider: the player, the keys and autosave.
+// A seek asked for anywhere (a word, a paragraph time, a cut's Restore) moves the player.
+function EditorWorkspace({ projectId, items, tray, onAdd }) {
+  const { state, spans, plan } = useEditor();
+  const player = usePlayback({
+    proxyUrl: (clipId) => apiUrl(endpoints.clipProxy(projectId, clipId)),
+    spans,
+    plan,
+    clips: state.clips,
+  });
+  const { engine } = player;
+  const { seekRequest } = state;
 
-// What a clip is doing now, as the tile will say it (5d): the browser's upload first, then the server's job and state.
-function describe(clip, upload, job) {
-  if (upload?.status === 'uploading') return { text: `Uploading ${percent(upload.loaded / upload.total)}%`, value: upload.loaded / upload.total };
-  if (upload?.status === 'waiting') return { text: 'Waiting to upload' };
-  if (upload?.status === 'stopped') return { text: 'Upload stopped', retry: true };
-  if (upload?.status === 'failed') return { text: upload.error, retry: true };
-  if (upload?.status === 'done' && (clip.state === 'EMPTY' || clip.state === 'UPLOADING')) return { text: 'Preparing' };
-  if (job?.status === 'QUEUED') return { text: `Waiting (${job.queuePosition} in the queue)` };
-  if (job?.status === 'RUNNING') {
-    const label = job.type === 'TRANSCRIBE' ? 'Transcribing' : 'Preparing';
-    return { text: `${label} ${percent(job.progress)}%${job.stage ? ` · ${job.stage}` : ''}`, value: job.progress };
-  }
-  switch (clip.state) {
-    case 'EMPTY': return { text: 'Upload stopped. Add the file again (Try again needs the tab that added it)' };
-    case 'UPLOADING': return { text: 'Uploading' };
-    case 'PREPARING': return { text: 'Preparing' };
-    case 'PREPARED': return { text: 'Prepared. Transcription arrives in Step 10' };
-    case 'TRANSCRIBING': return { text: 'Transcribing' };
-    case 'READY': return { text: 'Ready' };
-    case 'FAILED': return { text: job?.error ?? 'Failed' };
-    default: return { text: clip.state };
-  }
-}
+  useEffect(() => {
+    if (seekRequest.number) engine.seek(seekRequest.timelineMs);
+  }, [engine, seekRequest]);
 
-function ClipRow({ projectId, clip, upload, job }) {
-  const state = describe(clip, upload, job);
-  const name = clip.source?.fileName ?? clip.fileName ?? clip.name ?? upload?.file.name ?? clip.id;
-  const hasThumbnail = Boolean(clip.artifacts?.thumbnail);
+  useEditorKeyboard(engine);
+  useAutosave(projectId);
 
   return (
-    <div className="editor-stand-in__clip">
-      <div className="editor-stand-in__thumb">
-        {hasThumbnail && <img src={apiUrl(endpoints.clipThumbnail(projectId, clip.id))} alt="" />}
+    <PlayerContext.Provider value={player}>
+      <div className="editor__work">
+        <div className="editor__upper">
+          <TranscriptPane items={items} tray={tray} />
+          <VideoPane />
+        </div>
+        <LowerPanel onAdd={onAdd} />
       </div>
-      <div className="editor-stand-in__detail">
-        <span className="editor-stand-in__name">{clip.id} · {name}</span>
-        <span className="editor-stand-in__muted">{state.text}</span>
-        {state.value !== undefined && <Bar value={state.value} max={1} label={state.text} />}
-      </div>
-      {state.retry && upload && (
-        <Button variant="secondary" onClick={() => retryUpload(projectId, clip.id)}>Try again</Button>
-      )}
-    </div>
+    </PlayerContext.Provider>
   );
 }

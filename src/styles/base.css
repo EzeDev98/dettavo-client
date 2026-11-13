@@ -29,6 +29,14 @@ input, select, textarea {
 }
 ::placeholder { color: var(--color-text-muted); opacity: 1; }
 
+/* Reduced motion (prototype): nothing slides, fades or scrolls smoothly. The Spinner keeps its own slower turn. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* No outline anywhere. Keyboard focus is a brand border plus a soft ring instead. */
 *, *::before, *::after { outline: none; }
 
@@ -44,3 +52,8 @@ input, select, textarea {
    phone flashes its scroll indicators on the right and bottom edges (light in dark mode). Clipping sideways
    overflow on the page itself stops that; up-and-down scrolling is untouched. */
 html, body { overflow-x: clip; }
+
+/* Shared motion for the first-run screens (prototype f-rise, f-drop, f-pop). */
+@keyframes rise { from { opacity: 0; transform: translateY(var(--rise)); } }
+@keyframes drop { from { opacity: 0; transform: translateY(calc(var(--rise) * -1)); } }
+@keyframes pop { from { opacity: 0; transform: scale(0.8); } }
