@@ -1,12 +1,24 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { editedToTimeline, timelineToClip, timelineToEdited } from '@core/edit/timeMap.js';
 import { useEditor } from './editorContext.js';
+
+// ← and → move the playhead one frame (at 30 fps); with Shift, one second.
+const FRAME_MS = 1000 / 30;
+const SECOND_MS = 1000;
 
 // Keys typed into a field, or pressed inside an open dialog, are not the editor's.
 const elsewhere = (target) => target instanceof HTMLElement
   && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) || Boolean(target.closest('[role="dialog"]')));
 
+// Where a step of stepMs from timelineMs lands. With Skip cuts on it is taken in edited time, so stepping back never
+// lands in a cut and bounces forward again. player: the PlaybackEngine.
+function stepFrom(player, plan, timelineMs, stepMs) {
+  if (!player.skipCuts) return timelineMs + stepMs;
+  return editedToTimeline(plan, timelineToEdited(plan, timelineMs) + stepMs)?.timelineMs ?? timelineMs + stepMs;
+}
+
 // The selected words as plain text: words joined by spaces, a blank line where a paragraph or a clip changes. Pauses
-// and cut words are left out, as the transcript shows them. cutIds: the tokens of every REMOVE cut.
+// and cut words are left out, as the transcript shows them. cutIds: the tokens of every cut but a shortened pause.
 function selectionText(tokens, selection, cutIds) {
   let text = '';
   let paragraph = null;
@@ -21,13 +33,21 @@ function selectionText(tokens, selection, cutIds) {
   return text;
 }
 
-// The editor's keys (guide 8.10): Delete or Backspace removes the selection, ⌘Z or Ctrl+Z undoes, ⌘⇧Z, ⌘Y or Ctrl+Y
-// redoes, Escape clears the selection, and Space plays or pauses (not while a button has focus, which Space presses).
+// The editor's keys (guide 8.10): Delete or Backspace removes the selection (or the piece selected on the timeline),
+// ⌘B or Ctrl+B splits the clip at the playhead, Q and W cut that clip left or right of the playhead (CapCut's Delete
+// left and Delete right), ← and → move the playhead a frame (a second with Shift), ⌘Z or Ctrl+Z
+// undoes, ⌘⇧Z, ⌘Y or Ctrl+Y redoes, Escape clears the selection, and Space plays or pauses (not while a button has
+// focus, which Space presses).
 // A key already handled by a menu, a dialog or a field is left alone. ⌘C (or Edit, Copy) copies the selected words.
 // player: the PlaybackEngine.
 export default function useEditorKeyboard(player) {
-  const { state, dispatch, cutIds } = useEditor();
+  const { state, dispatch, cutIds, spans, plan } = useEditor();
   const { tokens, selection } = state;
+  const latest = useRef({ spans, plan, pieceSelected: false });
+
+  useEffect(() => {
+    latest.current = { spans, plan, pieceSelected: Boolean(state.pieceSelection) };
+  });
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -43,7 +63,17 @@ export default function useEditorKeyboard(player) {
         dispatch({ type: 'clearSelection' });
       } else if ((event.key === 'Delete' || event.key === 'Backspace') && !command) {
         event.preventDefault();
-        dispatch({ type: 'toggleSelection' });
+        dispatch({ type: latest.current.pieceSelected ? 'deletePiece' : 'toggleSelection' });
+      } else if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && !command) {
+        event.preventDefault();
+        const step = (event.shiftKey ? SECOND_MS : FRAME_MS) * (event.key === 'ArrowLeft' ? -1 : 1);
+        player.pause();
+        player.seek(stepFrom(player, latest.current.plan, player.timeMs, step));
+      } else if ((command && key === 'b') || (!command && !event.altKey && (key === 'q' || key === 'w'))) {
+        event.preventDefault();
+        const at = timelineToClip(latest.current.spans, player.timeMs);
+        const type = { b: 'split', q: 'deleteLeft', w: 'deleteRight' }[key];
+        if (at) dispatch({ type, clipId: at.clipId, atMs: at.clipMs });
       } else if (command && key === 'z') {
         event.preventDefault();
         dispatch({ type: event.shiftKey ? 'redo' : 'undo' });

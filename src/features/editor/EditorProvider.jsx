@@ -8,11 +8,12 @@ import { editorReducer, initialEditorState } from './editorReducer.js';
 // read once, then belong to the editor, while the clips follow the project each time it is fetched again (and the
 // edits too, when the server has newer ones and nothing here is waiting to be saved).
 // spans place each timeline clip; plan is editPlan's one result, which the Cuts list, the lengths, the timeline
-// overlay and playback all read. cutIds: every token a REMOVE cut takes out, including a gap the plan removes with the
-// words around it (rule 2b); the transcript leaves them out and they are listed under Cuts.
+// overlay and playback all read. cutIds: every token a cut takes out other than a shortened pause, including a gap the
+// plan removes with the words around it (rule 2b) and the words inside a deleted piece or silence (rule 9); the
+// transcript leaves them out and they are listed under Cuts.
 export default function EditorProvider({ project, children }) {
   const [state, dispatch] = useReducer(editorReducer, project, initialEditorState);
-  const { clips, timeline, tokens, removed, trims, padMs } = state;
+  const { clips, timeline, tokens, removed, trims, padMs, rangeCuts } = state;
 
   useEffect(() => {
     dispatch({ type: 'projectChanged', project });
@@ -20,12 +21,12 @@ export default function EditorProvider({ project, children }) {
 
   const spans = useMemo(() => timelineSpans(clips, timeline), [clips, timeline]);
   const plan = useMemo(
-    () => editPlan(tokens, timeline, clips, removed, trims, padMs),
-    [tokens, timeline, clips, removed, trims, padMs],
+    () => editPlan(tokens, timeline, clips, removed, trims, padMs, rangeCuts),
+    [tokens, timeline, clips, removed, trims, padMs, rangeCuts],
   );
 
   const cutIds = useMemo(
-    () => new Set(plan.cuts.filter((cut) => cut.kind === 'REMOVE').flatMap((cut) => cut.tokenIds)),
+    () => new Set(plan.cuts.filter((cut) => cut.kind !== 'TRIM').flatMap((cut) => cut.tokenIds)),
     [plan],
   );
 

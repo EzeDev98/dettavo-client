@@ -45,7 +45,7 @@
 }
 
 /* ---- The transcript (virtual list: rows are placed with translateY and measured, so spacing is padding) */
-/* Selecting is Dettavo's own (lavender), never the browser's text selection: nothing in the transcript can turn blue. */
+/* Selecting is Dettavo's own (the accent), never the browser's text selection: nothing in the transcript can turn blue. */
 .transcript-view {
   flex: 1;
   min-height: 0;

@@ -1,4 +1,4 @@
-// The edit plan (guide 4.9 rules 1 to 8, Build Plan 12b): which parts of each timeline clip are cut and which are
+// The edit plan (guide 4.9 rules 1 to 9, Build Plan 12b): which parts of each timeline clip are cut and which are
 // kept. Pure, no React. EditPlanner in dettavo-server implements the same numbered rules; change both together.
 import { timelineSpans } from './tokens.js';
 
@@ -33,7 +33,7 @@ function planClipCuts(tokens, removed, trims, padMs, durationMs) {
       startMs = run.before && run.firstIsWord ? Math.max(midpoint(run.before), startMs - padMs) : startMs + padMs;
       endMs = run.after && run.lastIsWord ? Math.min(midpoint(run.after), endMs + padMs) : endMs - padMs;
     }
-    cuts.push({ startMs, endMs, kind: 'REMOVE', tokenIds: run.tokenIds });
+    cuts.push({ startMs, endMs, kind: 'REMOVE', tokenIds: run.tokenIds, rangeCutIds: [] });
     run = null;
   };
 
@@ -54,7 +54,7 @@ function planClipCuts(tokens, removed, trims, padMs, durationMs) {
     if (keepMs !== undefined && token.endMs - token.startMs > keepMs) {
       // keepMs is split between the two sides; an odd millisecond stays after the cut.
       const before = Math.floor(keepMs / 2);
-      cuts.push({ startMs: token.startMs + before, endMs: token.endMs - (keepMs - before), kind: 'TRIM', tokenIds: [token.id] });
+      cuts.push({ startMs: token.startMs + before, endMs: token.endMs - (keepMs - before), kind: 'TRIM', tokenIds: [token.id], rangeCutIds: [] });
     }
   });
   closeRun();
@@ -64,8 +64,24 @@ function planClipCuts(tokens, removed, trims, padMs, durationMs) {
     .filter((cut) => cut.endMs > cut.startMs);
 }
 
+// Rule 9: a range cut takes out exactly startMs to endMs of its clip, clamped to the clip, with no padding. The tokens
+// wholly inside it go with it, so its words leave the transcript like removed ones.
+function planRangeCuts(rangeCuts, tokens, durationMs) {
+  return rangeCuts
+    .map((rangeCut) => ({ ...rangeCut, startMs: Math.max(0, rangeCut.startMs), endMs: Math.min(durationMs, rangeCut.endMs) }))
+    .filter((rangeCut) => rangeCut.endMs > rangeCut.startMs)
+    .map((rangeCut) => ({
+      startMs: rangeCut.startMs,
+      endMs: rangeCut.endMs,
+      kind: rangeCut.kind,
+      tokenIds: tokens.filter((token) => token.startMs >= rangeCut.startMs && token.endMs <= rangeCut.endMs).map((token) => token.id),
+      rangeCutIds: [rangeCut.id],
+    }));
+}
+
 // Rule 5: a keep segment shorter than MIN_KEEP_SEGMENT_MS is absorbed into the cut next to it. Between two cuts the
-// two become one; at the clip's start or end the cut grows to the edge.
+// two become one (overlapping cuts too); at the clip's start or end the cut grows to the edge. Merged cuts keep their
+// kind when it is the same, and become REMOVE when it is not.
 function absorbTinyKeeps(cuts, durationMs) {
   const merged = [];
   [...cuts]
@@ -74,10 +90,11 @@ function absorbTinyKeeps(cuts, durationMs) {
       const last = merged[merged.length - 1];
       if (last && cut.startMs - last.endMs < MIN_KEEP_SEGMENT_MS) {
         last.endMs = Math.max(last.endMs, cut.endMs);
-        last.kind = last.kind === 'TRIM' && cut.kind === 'TRIM' ? 'TRIM' : 'REMOVE';
+        last.kind = last.kind === cut.kind ? last.kind : 'REMOVE';
         last.tokenIds = [...last.tokenIds, ...cut.tokenIds];
+        last.rangeCutIds = [...last.rangeCutIds, ...cut.rangeCutIds];
       } else {
-        merged.push({ ...cut, tokenIds: [...cut.tokenIds] });
+        merged.push({ ...cut, tokenIds: [...cut.tokenIds], rangeCutIds: [...cut.rangeCutIds] });
       }
     });
 
@@ -91,12 +108,14 @@ function absorbTinyKeeps(cuts, durationMs) {
 }
 
 // tokens: from buildTokens. timeline: clip ids in order. clips: the project's clips. removed: a Set or array of token
-// ids. trims: a Map of pause id to keepMs, or [{ pauseId, keepMs }]. padMs: the project's padding.
+// ids. trims: a Map of pause id to keepMs, or [{ pauseId, keepMs }]. padMs: the project's padding. rangeCuts:
+// [{ id, clipId, startMs, endMs, kind ('MANUAL' or 'SILENCE') }].
 // Returns { cuts, keepSegments, editedMs, removedMs, timelineMs }:
-//   cut          { clipId, startMs, endMs, timelineStartMs, timelineEndMs, kind ('REMOVE' or 'TRIM'), tokenIds }
+//   cut          { clipId, startMs, endMs, timelineStartMs, timelineEndMs, kind ('REMOVE', 'TRIM', 'MANUAL' or
+//                  'SILENCE'), tokenIds, rangeCutIds }
 //   keep segment { clipId, startMs, endMs, timelineStartMs, editedStartMs }
 // Times without a prefix are the clip's own; timeline times are unedited; both lists are in timeline order (rule 6).
-export function editPlan(tokens, timeline, clips, removed, trims, padMs) {
+export function editPlan(tokens, timeline, clips, removed, trims, padMs, rangeCuts = []) {
   const removedIds = removed instanceof Set ? removed : new Set(removed);
   const trimsById = trims instanceof Map ? trims : new Map(trims.map((trim) => [trim.pauseId, trim.keepMs]));
 
@@ -105,6 +124,11 @@ export function editPlan(tokens, timeline, clips, removed, trims, padMs) {
     if (!tokensByClip.has(token.clipId)) tokensByClip.set(token.clipId, []);
     tokensByClip.get(token.clipId).push(token);
   });
+  const rangeCutsByClip = new Map();
+  rangeCuts.forEach((rangeCut) => {
+    if (!rangeCutsByClip.has(rangeCut.clipId)) rangeCutsByClip.set(rangeCut.clipId, []);
+    rangeCutsByClip.get(rangeCut.clipId).push(rangeCut);
+  });
 
   const cuts = [];
   const keepSegments = [];
@@ -112,10 +136,12 @@ export function editPlan(tokens, timeline, clips, removed, trims, padMs) {
   let timelineMs = 0;
 
   timelineSpans(clips, timeline).forEach(({ clipId, ready, durationMs, timelineStartMs }) => {
-    // Rule 8: a clip that is not READY is kept whole.
-    const clipCuts = ready
-      ? absorbTinyKeeps(planClipCuts(tokensByClip.get(clipId) ?? [], removedIds, trimsById, padMs, durationMs), durationMs)
-      : [];
+    // Rule 8: a clip that is not READY has no tokens, so only its range cuts apply (rule 9).
+    const clipTokens = ready ? tokensByClip.get(clipId) ?? [] : [];
+    const clipCuts = absorbTinyKeeps([
+      ...planClipCuts(clipTokens, removedIds, trimsById, padMs, durationMs),
+      ...planRangeCuts(rangeCutsByClip.get(clipId) ?? [], clipTokens, durationMs),
+    ], durationMs);
 
     const keep = (startMs, endMs) => {
       keepSegments.push({ clipId, startMs, endMs, timelineStartMs: timelineStartMs + startMs, editedStartMs: editedMs });
@@ -133,6 +159,7 @@ export function editPlan(tokens, timeline, clips, removed, trims, padMs) {
         timelineEndMs: timelineStartMs + cut.endMs,
         kind: cut.kind,
         tokenIds: cut.tokenIds,
+        rangeCutIds: cut.rangeCutIds,
       });
       cursor = cut.endMs;
     });

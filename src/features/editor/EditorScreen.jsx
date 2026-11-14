@@ -164,6 +164,13 @@ function EditorWorkspace({ projectId, items, tray, onAdd }) {
     if (seekRequest.number) engine.seek(seekRequest.timelineMs);
   }, [engine, seekRequest]);
 
+  // A cut (words removed, a piece or a side deleted, a split, silences cut) stops playback, so the player waits at the
+  // cut point until Play is pressed again.
+  const { removed, rangeCuts, splits } = state;
+  useEffect(() => {
+    engine.pause();
+  }, [engine, removed, rangeCuts, splits]);
+
   useEditorKeyboard(engine);
   useAutosave(projectId);
 
@@ -174,7 +181,7 @@ function EditorWorkspace({ projectId, items, tray, onAdd }) {
           <TranscriptPane items={items} tray={tray} />
           <VideoPane />
         </div>
-        <LowerPanel onAdd={onAdd} />
+        <LowerPanel projectId={projectId} onAdd={onAdd} />
       </div>
     </PlayerContext.Provider>
   );

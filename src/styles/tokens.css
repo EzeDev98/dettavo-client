@@ -18,28 +18,28 @@
   --p-white: #ffffff;
   --p-black: #000000;
 
-  /* Electric lavender, the primary accent (replaces the prototype's blue, 13 Nov 2026). */
-  --p-lavender-300: #c4a1ff;
-  --p-lavender-200: #d4baff;
-  --p-on-lavender: #1e1e1e;
+  /* The accent is Dettavo's own white (--p-text), with pure white on hover (replaces orange, 13 Nov 2026). Text on
+     it is dark. */
+  --p-on-accent: #1e1e1e;
   --p-red-300: #f48771;
   --p-amber-300: #e5a06a;
   --p-green-300: #5fc4a2;
 
   --p-wave-bg: #1b1b1c;
   --p-stage: #161616;
-  --p-clip: #2f2840;
-  --p-clip-line: #5d4f80;
+  --p-clip: #2a2a2b;
+  --p-clip-line: #4a4a4c;
   --p-placeholder-icon: #3a3a3a;
   --p-badge: rgba(0, 0, 0, 0.45);
 
-  --p-selection: rgba(196, 161, 255, 0.5);
-  --p-current-word: rgba(196, 161, 255, 0.2);
-  --p-focus-tint: rgba(196, 161, 255, 0.3);
+  --p-selection: rgba(212, 212, 212, 0.28);
+  --p-current-word: rgba(212, 212, 212, 0.16);
+  --p-focus-tint: rgba(212, 212, 212, 0.3);
   --p-hover: rgba(255, 255, 255, 0.06);
   --p-removed: rgba(244, 135, 113, 0.13);
   --p-cut-band: rgba(244, 135, 113, 0.12);
-  --p-selection-band: rgba(196, 161, 255, 0.35);
+  --p-selection-band: rgba(212, 212, 212, 0.25);
+  --p-piece-edge: rgba(0, 0, 0, 0.7);
   --p-pause-long: rgba(229, 160, 106, 0.1);
   --p-pause-trimmed: rgba(95, 196, 162, 0.1);
   --p-scrim: rgba(0, 0, 0, 0.5);
@@ -53,10 +53,10 @@
   --color-text-muted: var(--p-muted);
   --color-line: var(--p-line);
   --color-field-line: var(--p-field);
-  --color-brand: var(--p-lavender-300);
-  --color-brand-hover: var(--p-lavender-200);
-  --color-on-brand: var(--p-on-lavender); /* dark text: white on lavender is too faint to read */
-  --color-accent: var(--p-lavender-300);
+  --color-brand: var(--p-text);
+  --color-brand-hover: var(--p-white);
+  --color-on-brand: var(--p-on-accent); /* dark text on the white accent */
+  --color-accent: var(--p-text);
   --color-hover: var(--p-hover);
   --color-focus-tint: var(--p-focus-tint);
   --color-scrim: var(--p-scrim);
@@ -70,7 +70,7 @@
 
   /* Startup screen: the page colour, matching the native splash (manifest background_color), so the start never flashes. */
   --color-splash-bg: var(--p-bg);
-  --color-splash-logo: var(--p-lavender-300); /* the dots */
+  --color-splash-logo: var(--p-text); /* the dots */
   --color-splash-text: var(--p-muted);
 
   /* States. Always paired with a word or icon, never colour alone. */
@@ -96,6 +96,9 @@
   --color-clip: var(--p-clip);
   --color-clip-line: var(--p-clip-line);
   --color-playhead: var(--p-text);
+  --color-waveform: var(--p-text);           /* the timeline's waveform, drawn on its canvas */
+  --color-piece-edge: var(--p-piece-edge);   /* the line where a clip is split into pieces */
+  --color-piece-selected: var(--p-text);     /* the outline round the piece selected on the timeline */
   --caption-shadow: 0 1px 2px var(--p-black);
 
   --font-family: "Red Hat Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -107,7 +110,7 @@
   --text-md: 16px;     --leading-md: 24px;
   --text-lg: 20px;     --leading-lg: 28px;
 
-  --border-width: 0.5px;
+  --border-width: 1px;  /* a whole pixel: a half pixel lands between screen pixels and draws unevenly */
   --radius: 4px;
   --radius-sm: 3px;
   --menu-radius: 2px;  /* dropdowns, their menus and the transcript's pause chips */
@@ -166,10 +169,14 @@
   --transcript-measure: 680px;
   --paragraph-time-column: 52px;
   --timeline-height: 112px;
-  --clip-block-pad-y: 8px;
+  --timeline-film-height: 64px;  /* the filmstrip at the top of a block; the waveform takes the rest */
+  --timeline-label-height: 18px;
+  --waveform-bar-width: 2px;     /* the waveform's bars, CapCut style: thin, with a gap between each */
+  --waveform-bar-gap: 1px;
+  --playhead-handle-width: 12px;
+  --playhead-handle-height: 14px;
+  --piece-selected-width: 2px;
   --clip-block-pad-x: 10px;
-  --clip-block-gap: 2px;
-  --clip-block-accent: 2px;     /* the accent line at a block's left edge */
   --cut-edge-width: 1px;
   --ruler-tick-minor: 5px;
   --ruler-tick-major: 10px;

@@ -9,4 +9,10 @@ export const queryKeys = {
     list: () => ['projects', 'list'],
     detail: (projectId) => ['projects', 'detail', projectId],
   },
+  // A clip's timeline media. version changes when the clip's cache is rebuilt, so the files are fetched again.
+  media: {
+    levels: (projectId, clipId, version) => ['media', 'levels', projectId, clipId, version],
+    filmstrip: (projectId, clipId, version) => ['media', 'filmstrip', projectId, clipId, version],
+    filmstripImage: (projectId, clipId, version) => ['media', 'filmstripImage', projectId, clipId, version],
+  },
 };

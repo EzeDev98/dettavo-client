@@ -24,7 +24,7 @@ const withChanges = (edits, changes = {}) => ({ ...edits, ...changes });
 
 function browserPlan(project, edits) {
   const tokens = buildTokens(project.clips, edits.timeline);
-  return editPlan(tokens, edits.timeline, project.clips, edits.removed, edits.trims, edits.padMs);
+  return editPlan(tokens, edits.timeline, project.clips, edits.removed, edits.trims, edits.padMs, edits.rangeCuts ?? []);
 }
 
 // The same JSON whatever order the keys came in.

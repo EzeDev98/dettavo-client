@@ -22,4 +22,7 @@ export const endpoints = Object.freeze({
   clipTranscribe: (projectId, clipId) => `/projects/${encode(projectId)}/clips/${encode(clipId)}/transcribe`,
   clipProxy: (projectId, clipId) => `/projects/${encode(projectId)}/clips/${encode(clipId)}/media/proxy`,
   clipThumbnail: (projectId, clipId) => `/projects/${encode(projectId)}/clips/${encode(clipId)}/media/thumbnail`,
+  clipLevels: (projectId, clipId) => `/projects/${encode(projectId)}/clips/${encode(clipId)}/media/levels`,
+  clipFilmstrip: (projectId, clipId) => `/projects/${encode(projectId)}/clips/${encode(clipId)}/media/filmstrip`,
+  clipFilmstripImage: (projectId, clipId) => `/projects/${encode(projectId)}/clips/${encode(clipId)}/media/filmstrip/image`,
 });
