@@ -5,7 +5,6 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  border-right: var(--border-width) solid var(--color-line);
 }
 
 .pause-bar {
@@ -158,6 +157,14 @@
   background: var(--color-pause-trimmed-tint);
   border-color: var(--color-pause-trimmed);
   color: var(--color-pause-trimmed);
+}
+
+/* Speech whisper wrote no word for: a dashed chip in the text colour, so it reads as something said, not a pause. */
+.transcript-token--speech,
+.transcript-token--speech:hover {
+  border-style: dashed;
+  border-color: var(--color-text);
+  color: var(--color-text);
 }
 
 .transcript-token--selected,

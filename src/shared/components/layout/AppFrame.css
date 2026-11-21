@@ -4,6 +4,7 @@
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   height: 100dvh;
+  background: var(--color-canvas);
 }
 
 /* The window never grows with its screen: a long screen scrolls in here, and the editor fills it exactly so the

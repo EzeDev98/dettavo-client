@@ -2,7 +2,6 @@
    track: filmstrip and waveform inside each block, pieces between splits, and a playhead through ruler and track. */
 .lower-panel {
   background: var(--color-surface);
-  border-top: var(--border-width) solid var(--color-line);
 }
 
 .toolbar {

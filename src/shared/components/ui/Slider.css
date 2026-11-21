@@ -1,0 +1,64 @@
+/* The slider: a thin line, filled up to a round handle (prototype .zs). --slider-fill is set by Slider.jsx. */
+.ui-slider {
+  --slider-track: linear-gradient(
+    to right,
+    var(--color-text) var(--slider-fill, 0%),
+    var(--color-field-line) var(--slider-fill, 0%)
+  );
+
+  width: var(--slider-width);
+  height: var(--button-height);
+  margin: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  appearance: none;
+}
+
+.ui-slider:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.ui-slider::-webkit-slider-runnable-track {
+  height: var(--slider-track-height);
+  background: var(--slider-track);
+  border-radius: var(--menu-radius);
+}
+
+.ui-slider::-moz-range-track {
+  height: var(--slider-track-height);
+  background: var(--slider-track);
+  border-radius: var(--menu-radius);
+}
+
+.ui-slider::-webkit-slider-thumb {
+  width: var(--slider-thumb-size);
+  height: var(--slider-thumb-size);
+  margin-top: calc((var(--slider-track-height) - var(--slider-thumb-size)) / 2);
+  background: var(--color-text);
+  border: 0;
+  border-radius: 50%;
+  transition: transform var(--motion-hover) var(--ease-standard);
+  appearance: none;
+}
+
+.ui-slider::-moz-range-thumb {
+  width: var(--slider-thumb-size);
+  height: var(--slider-thumb-size);
+  background: var(--color-text);
+  border: 0;
+  border-radius: 50%;
+  transition: transform var(--motion-hover) var(--ease-standard);
+}
+
+.ui-slider:not(:disabled):hover::-webkit-slider-thumb,
+.ui-slider:not(:disabled):active::-webkit-slider-thumb { transform: scale(var(--slider-thumb-hover-scale)); }
+
+.ui-slider:not(:disabled):hover::-moz-range-thumb,
+.ui-slider:not(:disabled):active::-moz-range-thumb { transform: scale(var(--slider-thumb-hover-scale)); }
+
+/* Keyboard focus rings the handle, not the whole line. */
+.ui-slider:focus-visible { box-shadow: none; }
+.ui-slider:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-ring-color); }
+.ui-slider:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-ring-color); }

@@ -1,12 +1,11 @@
-/* The prototype's status bar: surface, a line above, extra-small muted text. */
+/* The prototype's status bar: on the canvas, no line, extra-small muted text. */
 .status-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--gap);
   padding: calc(var(--gap) / 2) var(--gutter);
-  background: var(--color-surface);
-  border-top: var(--border-width) solid var(--color-line);
+  background: var(--color-canvas);
   font-size: var(--text-xs);
   line-height: var(--leading-xs);
   color: var(--color-text-muted);

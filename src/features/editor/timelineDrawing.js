@@ -1,7 +1,7 @@
 // What the timeline draws inside its clip blocks, CapCut style: a filmstrip along the top and the waveform below it
 // (the whole height for an audio clip). Pure drawing on a canvas, no React. Colours and sizes come from the canvas's
 // CSS (tokens.css), so they are defined once.
-import { quietThreshold } from '@core/edit/silences.js';
+import { waveformRange } from '@core/edit/silences.js';
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
@@ -49,7 +49,7 @@ const cssNumber = (styles, name) => {
 };
 
 // Draws every stretch that is in view. view: from useTimelineView (startMs, spanMs). media: from useTimelineMedia.
-export function drawTimeline(canvas, view, stretches, media) {
+export function drawTimeline(canvas, view, stretches, media, gain = 1) {
   const context = canvas.getContext('2d');
   if (!context) return;
   const width = canvas.clientWidth;
@@ -89,7 +89,7 @@ export function drawTimeline(canvas, view, stretches, media) {
     if (clip.filmstrip && clip.image) drawFilmstrip(context, clip, stretch, x0, x1, width, filmHeight, pxPerMs);
     if (clip.levels?.length) {
       context.fillStyle = waveColor;
-      drawWaveform(context, clip, stretch, x0, x1, width, waveTop, height, pxPerMs, bar);
+      drawWaveform(context, clip, stretch, x0, x1, width, waveTop, height, pxPerMs, bar, gain);
     }
     context.restore();
   });
@@ -110,13 +110,14 @@ function drawFilmstrip(context, clip, stretch, x0, x1, width, filmHeight, pxPerM
 }
 
 // CapCut style: separate thin bars rising from the bottom, each as tall as the loudest frame under it, measured from
-// the clip's quiet threshold, so where nobody speaks there is no bar at all. Bars sit on a fixed grid from the
-// stretch's left edge, so they do not shimmer while scrolling.
-function drawWaveform(context, clip, stretch, x0, x1, width, top, bottom, pxPerMs, bar) {
+// just above the clip's noise floor up to its loudest frame (waveformRange), so any sound shows and where nobody
+// speaks there is no bar at all. Bars sit on a fixed grid from the stretch's left edge, so they do not shimmer while
+// scrolling.
+function drawWaveform(context, clip, stretch, x0, x1, width, top, bottom, pxPerMs, bar, gain) {
   const { levels, durationMs } = clip;
   if (!durationMs) return;
   const frameMs = durationMs / levels.length;
-  const quiet = quietThreshold(levels);
+  const { base, top: loudest } = waveformRange(levels);
   const room = Math.max(0, bottom - top - 1);
   const step = Math.max(1, bar.width + bar.gap);
   const first = x0 + Math.max(0, Math.floor(-x0 / step)) * step;
@@ -127,7 +128,8 @@ function drawWaveform(context, clip, stretch, x0, x1, width, top, bottom, pxPerM
     const lastFrame = clamp(Math.ceil(toMs / frameMs), firstFrame + 1, levels.length);
     let peak = 0;
     for (let frame = firstFrame; frame < lastFrame; frame += 1) if (levels[frame] > peak) peak = levels[frame];
-    const barHeight = (Math.max(0, peak - quiet) / (255 - quiet)) * room;
-    if (barHeight >= 1) context.fillRect(x, bottom - barHeight, Math.max(1, bar.width), barHeight);
+    if (peak <= base) continue;
+    const barHeight = Math.max(1, Math.min(1, (peak - base) / (loudest - base)) * room);
+    context.fillRect(x, bottom - barHeight, Math.max(1, bar.width), barHeight);
   }
 }

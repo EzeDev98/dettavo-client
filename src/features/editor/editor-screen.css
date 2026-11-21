@@ -1,5 +1,6 @@
 /* The editor, from the approved prototype's .app, .work and .upper: the top bar, then the two panes side by side
-   over the lower panel, filling the window. Below 860 px the panes stack and the window scrolls. */
+   over the lower panel, filling the window. The three are floating panels on the canvas with a gap between them
+   (CapCut style). Below 860 px the panes stack and the window scrolls. */
 .editor {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -9,13 +10,24 @@
 .editor__work {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
+  gap: var(--panel-gap);
   min-height: 0;
+  padding: 0 var(--panel-gap);
 }
 
 .editor__upper {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--panel-gap);
   min-height: 0;
+}
+
+/* One panel: its own surface and rounded corners; children are clipped to the corners. :where() keeps this at zero
+   specificity, so a panel's own file can still set its surface (the lower panel keeps --color-surface). */
+:where(.transcript-pane, .video-pane, .lower-panel) {
+  overflow: hidden;
+  background: var(--color-bg);
+  border-radius: var(--panel-radius);
 }
 
 .editor__crumb {
@@ -70,11 +82,6 @@
   .pane-header { flex-wrap: wrap; }
   .transport__time { display: none; }
   .video-stage { width: 100%; }
-
-  .transcript-pane {
-    border-right: 0;
-    border-bottom: var(--border-width) solid var(--color-line);
-  }
 
   .transcript-view,
   .transcript-pane__scroll { max-height: 45vh; }

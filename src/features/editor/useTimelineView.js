@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 export const MAX_PIXELS_PER_SECOND = 300;
 
 // What part of the timeline the ruler and the track show (guide 8.8, prototype pps and s0). A project opens at Fit.
-// Returns { trackRef, width, fit, pixelsPerSecond, startMs, spanMs, percentAt, timeAt, zoomTo, panBy, reveal }.
+// Returns { trackRef, width, fit, fitPixelsPerSecond, pixelsPerSecond, startMs, spanMs, percentAt, timeAt, zoomTo,
+// panBy, reveal }.
 // percentAt(ms) places a moment in percent of the track's width; timeAt(clientX) is the moment under the pointer.
 export default function useTimelineView(timelineMs) {
   const [width, setWidth] = useState(0);
@@ -68,6 +69,7 @@ export default function useTimelineView(timelineMs) {
     element,
     width,
     fit: !zoom.pixelsPerSecond,
+    fitPixelsPerSecond: fitPps,
     pixelsPerSecond,
     startMs,
     spanMs,
@@ -80,5 +82,5 @@ export default function useTimelineView(timelineMs) {
     zoomTo,
     panBy,
     reveal,
-  }), [trackRef, width, zoom.pixelsPerSecond, pixelsPerSecond, startMs, spanMs, zoomTo, panBy, reveal]);
+  }), [trackRef, width, zoom.pixelsPerSecond, fitPps, pixelsPerSecond, startMs, spanMs, zoomTo, panBy, reveal]);
 }

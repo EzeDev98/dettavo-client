@@ -60,7 +60,7 @@ function TimelineRuler({ view, hidden }) {
 // them or onto the tray to take them off; a ready tile dropped on the track goes where the accent line shows.
 // axis (timelineAxis): everything is drawn in its time. Edited (Skip cuts on): a cut takes no space, so each block is
 // as long as what is kept of its clip. Timeline time (Skip cuts off): blocks at full length with the cuts over them.
-export function Timeline({ projectId, view, axis }) {
+export function Timeline({ projectId, view, axis, waveGain = 1 }) {
   const { state, dispatch, spans, plan } = useEditor();
   const { engine, playing } = usePlayer();
   const media = useTimelineMedia(projectId, state.clips, state.timeline);
@@ -84,7 +84,7 @@ export function Timeline({ projectId, view, axis }) {
 
   // The filmstrips and waveforms follow every zoom, pan, resize and edit; drawing them is cheap.
   useEffect(() => {
-    if (canvasRef.current) drawTimeline(canvasRef.current, view, stretches, media);
+    if (canvasRef.current) drawTimeline(canvasRef.current, view, stretches, media, waveGain);
   });
 
   const visible = (startMs, endMs) => endMs > view.startMs && startMs < view.startMs + view.spanMs;

@@ -1,4 +1,5 @@
 import { Fragment, memo, useEffect, useMemo, useRef } from 'react';
+import { useParams } from 'react-router';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { cx } from '@shared/utils/classNames.js';
 import { readTokenPx } from '@shared/utils/cssLength.js';
@@ -8,7 +9,8 @@ import { formatSeconds } from './pauses.js';
 import { clipName } from './clipStatus.js';
 import { useEditor } from './editorContext.js';
 import { usePlayer, usePlayerClock } from './playerContext.js';
-import { transcriptRows } from './transcriptRows.js';
+import useTimelineMedia from './timelineMediaApi.js';
+import { shortenedPauses, speechInPauses, transcriptRows } from './transcriptRows.js';
 
 // Paragraph rows are measured as they render; these are only first guesses.
 const ESTIMATED_HEIGHTS = { divider: 22, paragraph: 112, state: 40, noSpeech: 40, allCut: 40 };
@@ -74,7 +76,7 @@ function edgeScroll(pane, y) {
 // tile status, for clips on the timeline that are not ready yet. While playing, the playing word is highlighted and
 // kept in the middle of the pane (15d), outside React.
 export default function TranscriptView({ statusByClip }) {
-  const { state, dispatch, spans, cutIds } = useEditor();
+  const { state, dispatch, spans, plan, cutIds } = useEditor();
   const { tokens, selection, clips, trims, pauseThresholdMs } = state;
   const scrollRef = useRef(null);
   // anchor: the token the drag started on. focus: the token it reaches now. x, y: the pointer. frame: the running loop.
@@ -85,6 +87,16 @@ export default function TranscriptView({ statusByClip }) {
 
   // Cut tokens leave the transcript at once; they are listed under Cuts, where Restore brings them back.
   const rows = useMemo(() => transcriptRows(tokens, spans, cutIds), [tokens, spans, cutIds]);
+  // Pauses a silence or timeline cut shortens show what they keep, like a trimmed pause.
+  const shortened = useMemo(() => shortenedPauses(tokens, plan.cuts), [tokens, plan.cuts]);
+  // Sound inside a pause that has no word: shown as a speech chip. The map is kept while its content is the same, so
+  // the paragraphs only render again when it changes.
+  const { projectId } = useParams();
+  const media = useTimelineMedia(projectId, clips, state.timeline);
+  const speechFound = speechInPauses(tokens, media);
+  const speechRef = useRef(speechFound);
+  if (!sameEntries(speechRef.current, speechFound)) speechRef.current = speechFound;
+  const speech = speechRef.current;
   const names = useMemo(() => new Map(clips.map((clip) => [clip.id, clipName(clip)])), [clips]);
   const gutter = useMemo(() => readTokenPx('--gutter'), []);
 
@@ -220,7 +232,7 @@ export default function TranscriptView({ statusByClip }) {
                 row={row}
                 tokens={tokens}
                 selection={selection}
-                edits={{ cutIds, trims, thresholdMs: pauseThresholdMs }}
+                edits={{ cutIds, trims, shortened, speech, thresholdMs: pauseThresholdMs }}
                 names={names}
                 statusByClip={statusByClip}
               />
@@ -255,6 +267,8 @@ function Row({ row, tokens, selection, edits, names, statusByClip }) {
           selectedLast={inside ? Math.min(selection.last, row.last) : -1}
           cutIds={edits.cutIds}
           trims={edits.trims}
+          shortened={edits.shortened}
+          speech={edits.speech}
           thresholdMs={edits.thresholdMs}
         />
       );
@@ -264,9 +278,13 @@ function Row({ row, tokens, selection, edits, names, statusByClip }) {
 
 // One paragraph: its start time in timeline time, then its words and pauses. Pauses of 0.3 s or more are chips
 // ("1.9s"); shorter ones are hidden spans. Every token carries data-i, its index, for the delegated mouse handlers.
-// Cut tokens are not rendered at all: they are under Cuts. A trimmed pause turns green and shows what it keeps
-// ("1.9s → 0.3s"), and an untouched one over the pause bar's threshold turns amber.
-const Paragraph = memo(function Paragraph({ tokens, first, last, startMs, selectedFirst, selectedLast, cutIds, trims, thresholdMs }) {
+// Cut tokens are not rendered at all: they are under Cuts. A trimmed pause, or one a silence or timeline cut shortens,
+// turns green and shows what it keeps ("1.9s → 0.3s"), and an untouched one over the pause bar's threshold turns amber.
+// An untouched pause with sound but no word in it (speech whisper left out) is a speech chip ("speech 1.2s"): click it
+// to hear it, select it and Delete to cut it like a word.
+const Paragraph = memo(function Paragraph({
+  tokens, first, last, startMs, selectedFirst, selectedLast, cutIds, trims, shortened, speech, thresholdMs,
+}) {
   const items = [];
   for (let index = first; index <= last; index += 1) {
     const token = tokens[index];
@@ -287,10 +305,11 @@ const Paragraph = memo(function Paragraph({ tokens, first, last, startMs, select
     } else {
       const lengthMs = token.endMs - token.startMs;
       const chip = lengthMs >= CHIP_MIN_MS;
-      const keepMs = trims.get(token.id);
+      const keepMs = trims.get(token.id) ?? shortened.get(token.id);
       const trimmed = keepMs !== undefined;
+      const spoken = !trimmed && chip && speech.has(token.id);
       let label = null;
-      if (chip) label = `${(lengthMs / 1000).toFixed(1)}s${trimmed ? ` → ${formatSeconds(keepMs)}` : ''}`;
+      if (chip) label = `${spoken ? 'speech ' : ''}${(lengthMs / 1000).toFixed(1)}s${trimmed ? ` → ${formatSeconds(keepMs)}` : ''}`;
       items.push(
         <span
           key={token.id}
@@ -300,7 +319,8 @@ const Paragraph = memo(function Paragraph({ tokens, first, last, startMs, select
             'transcript-token--pause',
             !chip && 'transcript-token--hidden',
             trimmed && 'transcript-token--trimmed',
-            !trimmed && lengthMs > thresholdMs && 'transcript-token--long',
+            spoken && 'transcript-token--speech',
+            !trimmed && !spoken && lengthMs > thresholdMs && 'transcript-token--long',
             selected && 'transcript-token--selected',
           )}
         >
@@ -317,3 +337,10 @@ const Paragraph = memo(function Paragraph({ tokens, first, last, startMs, select
     </div>
   );
 });
+
+// Whether two Maps hold the same keys with the same values.
+function sameEntries(a, b) {
+  if (a.size !== b.size) return false;
+  for (const [key, value] of a) if (b.get(key) !== value) return false;
+  return true;
+}

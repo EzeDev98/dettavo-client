@@ -3,8 +3,7 @@
   align-items: center;
   gap: var(--gap);
   padding: var(--gap) var(--gutter);
-  background: var(--color-surface);
-  border-bottom: var(--border-width) solid var(--color-line);
+  background: var(--color-canvas);
 }
 
 .ui-top-bar__brand {

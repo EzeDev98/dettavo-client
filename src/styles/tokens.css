@@ -7,6 +7,7 @@
   color-scheme: dark;
 
   /* ---------- 1. Palette ---------- */
+  --p-canvas: #141414;
   --p-bg: #1e1e1e;
   --p-surface: #252526;
   --p-raise: #2d2d30;
@@ -45,6 +46,7 @@
   --p-scrim: rgba(0, 0, 0, 0.5);
 
   /* ---------- 2. Semantic ---------- */
+  --color-canvas: var(--p-canvas); /* the window behind Home's and the editor's panels (CapCut style) */
   --color-bg: var(--p-bg);
   --color-surface: var(--p-surface);
   --color-raise: var(--p-raise);
@@ -164,6 +166,8 @@
   --menu-pad: 4px;
   --menu-offset: 4px;
   --menu-option-height: 32px;
+  --panel-radius: 10px;          /* the editor's floating panels: transcript, video, and toolbar + timeline */
+  --panel-gap: 8px;              /* the strip of canvas between and around the panels */
   --pane-header-height: 48px;
   --tab-underline: 2px;
   --transcript-measure: 680px;
@@ -195,6 +199,12 @@
   --playhead-width: 2px;
   --progress-height: 4px;
   --status-dot-size: 8px;
+
+  /* Slider (the timeline's zoom line, CapCut style) */
+  --slider-width: 120px;
+  --slider-track-height: 2px;
+  --slider-thumb-size: 12px;
+  --slider-thumb-hover-scale: 1.2;
 
   /* Clips tray (prototype .tray, .tiles, .tile) */
   --tray-pad-bottom: 10px;
