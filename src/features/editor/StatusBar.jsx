@@ -6,8 +6,6 @@ import './StatusBar.css';
 // "localhost:2060", from VITE_API_BASE_URL.
 const serverAddress = new URL(env.apiBaseUrl).host;
 
-// Guide 8.9. The dot is never the only signal: the words beside it say the same thing.
-// hint: the editor's shortcuts, shown on the right.
 export default function StatusBar({ hint }) {
   const { data: status, isError, isPending } = useSystemStatus();
   const connected = !isPending && !isError;

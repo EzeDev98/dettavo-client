@@ -14,8 +14,6 @@ import LaptopFeed from './LaptopFeed.jsx';
 // How long to wait for Chrome's install prompt before showing the manual steps.
 const PROMPT_WAIT_MS = 10000;
 
-// Route /install, from Ahorra (prototype 5f). Phases: waiting, ready, installing, manual, handoff.
-// Install Dettavo opens Chrome's own install dialog; Dettavo never draws one. Cancel shows the manual steps.
 export default function InstallScreen() {
   const navigate = useNavigate();
   const { prompt, installed } = useSyncExternalStore(subscribeInstall, getInstallState);
@@ -41,8 +39,6 @@ export default function InstallScreen() {
     return () => query.removeEventListener('change', onChange);
   }, []);
 
-  // Checked on every render, as in Ahorra: when Chrome moves this tab into the new app window, the display-mode change
-  // above re-renders this screen, and the app's own window goes Home instead of showing the hand-off.
   if (isRunningAsApp()) return <Navigate to={ROUTES.projects} replace />;
 
   let phase = 'waiting';

@@ -3,7 +3,6 @@ import { useEffect, useRef } from 'react';
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-// Open overlays, top of the stack last. Only the top one answers Escape and Tab.
 const stack = [];
 let scrollLocks = 0;
 
@@ -14,9 +13,6 @@ const unlockScroll = () => {
   if (--scrollLocks === 0) document.body.style.overflow = '';
 };
 
-// While `active`: focus moves into the container (an element marked data-autofocus wins, otherwise the
-// first focusable one), Tab stays inside, Escape calls onClose, page scroll is locked, and when `active`
-// turns off focus returns to whatever had it before.
 export default function useOverlayBehavior({ active, containerRef, onClose }) {
   const closeRef = useRef(onClose);
   useEffect(() => {

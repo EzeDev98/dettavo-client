@@ -1,6 +1,3 @@
-// All Onboarding, Install and hand-off copy (prototype 5f), so changing a word never means touching a screen.
-// The emoji are decorative and hidden from screen readers.
-
 export const ONBOARDING_COPY = {
   title: 'Edit a recording by editing its words.',
   description: 'Delete a word and it’s cut from the video.',

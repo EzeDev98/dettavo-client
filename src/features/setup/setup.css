@@ -1,5 +1,3 @@
-/* Setup and Service down are built from the shared first-run components (FlowScreen and the ui folder).
-   Only the Service-down waiting line is their own. */
 .setup__waiting {
   display: flex;
   align-items: center;

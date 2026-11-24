@@ -6,11 +6,6 @@ import { cx } from '@shared/utils/classNames.js';
 // Only one menu is open at a time: opening one closes the one before.
 let closeOpenMenu = null;
 
-// The custom listbox (never the native select, which macOS draws itself).
-// options: [{ value, label }]. value: the selected value. onChange(value). label: the accessible name.
-// placement: 'down' | 'up' (for buttons near the bottom of the window).
-// Keyboard: Enter, Space or the arrow keys open it; arrows, Home and End move; Enter or Space picks;
-// Escape closes and returns focus to the button; Tab closes. A click outside closes it.
 export default function Dropdown({ options, value, onChange, label, placement = 'down', disabled = false, className }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);

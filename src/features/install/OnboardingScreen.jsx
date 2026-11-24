@@ -45,9 +45,6 @@ function Demo() {
   );
 }
 
-// Route / (the start route), the first screen in a browser tab (prototype 5f). Get started goes to Install.
-// The app's own window goes straight on to Home. A browser tab where the app is already installed goes to Install,
-// which shows the hand-off: use the app from the Dock.
 export default function OnboardingScreen() {
   const navigate = useNavigate();
 

@@ -6,9 +6,7 @@ import { queryClient } from '@core/data/queryClient.js';
 export const CHECK_EVERY_MS = 3 * 60_000;
 export const RUNNING_BUILD = typeof __APP_BUILD_ID__ === 'string' ? __APP_BUILD_ID__ : null;
 
-// The build this browser last fully reset for. Kept apart from the running bundle on purpose: page loads are network-first,
-// so a plain reload runs the newest bundle even though the old service worker and its caches still serve old files
-// (fonts, icons). Without this marker the browser would look up to date and never be offered the reset.
+
 const APPLIED_KEY = 'dettavo.applied.build';
 
 const readApplied = () => {

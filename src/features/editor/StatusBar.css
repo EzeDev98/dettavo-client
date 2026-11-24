@@ -1,4 +1,3 @@
-/* The prototype's status bar: on the canvas, no line, extra-small muted text. */
 .status-bar {
   display: flex;
   flex-wrap: wrap;

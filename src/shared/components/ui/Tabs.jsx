@@ -2,9 +2,6 @@ import { useRef } from 'react';
 import './Tabs.css';
 import { cx } from '@shared/utils/classNames.js';
 
-// tabs: [{ value, label, count?, panelId? }]. value: the active tab. onChange(value). label: the accessible name.
-// count shows beside the label ("Cuts 3"). panelId links a tab to its panel (role="tabpanel" in the caller).
-// Keyboard: Left and Right move and select, Home and End jump; only the active tab is in the Tab order.
 export default function Tabs({ tabs, value, onChange, label, className }) {
   const tabRefs = useRef([]);
 

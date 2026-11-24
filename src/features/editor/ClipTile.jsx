@@ -11,10 +11,6 @@ import { clipName } from './clipStatus.js';
 
 const ACTION_LABELS = { retry: 'Retry', rebuild: 'Rebuild', tryAgain: 'Try again' };
 
-// One clip in the Clips tray (prototype 5b and 5d): a 16:9 thumbnail carrying the state tag, the progress bar and,
-// on hover or focus, the trash button; then the file name and the duration (or what the clip is waiting for).
-// item: { clip, status } from useClips. busy: its Retry is being sent. A ready clip (with or without speech) can be
-// dragged onto the timeline (5c).
 export default function ClipTile({ projectId, item, busy, onAction, onDelete }) {
   const { clip, status } = item;
   const [thumbnailFailed, setThumbnailFailed] = useState(false);

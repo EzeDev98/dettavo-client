@@ -44,9 +44,6 @@ function OverlayView({ open, visible, variant, title, label, footer, dismissible
   );
 }
 
-// Internal. variant: 'modal' | 'sheet' | 'drawer'.
-// title labels the dialog; without one, pass label. dismissible: false removes the close button and
-// turns off Escape and scrim-tap, for choices the person must make.
 export default function Overlay({ open, ...props }) {
   const { mounted, visible } = usePresence(open);
   if (!mounted) return null;

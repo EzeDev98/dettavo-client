@@ -22,10 +22,6 @@ function paragraphWords(tokens) {
   return words;
 }
 
-// The editor's right pane (guide 8.7, prototype .vpane): "Video", the proxy's size ("proxy · audio only" for an audio
-// clip) and the mode; the 16:9 stage with two video elements, the timecode chip and the caption; and the transport
-// with the time across the whole timeline. With nothing on the timeline the stage says so and the transport is off
-// (5e). The time, the chip and the caption move every frame outside React.
 export default function VideoPane() {
   const { state, spans } = useEditor();
   const player = usePlayer();
@@ -99,8 +95,6 @@ export default function VideoPane() {
   );
 }
 
-// The caption (prototype draw()): the paragraph of the playing word with that word in the accent; in a pause, the
-// paragraph of the next word. Rebuilt only when the word changes.
 function renderCaption(element, lastKey, tokens, words, now) {
   if (!element) return;
   let index = tokenIndexAt(tokens, now);

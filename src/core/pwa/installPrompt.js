@@ -1,6 +1,3 @@
-// Captures install events from the moment the app starts, from Ahorra. Chrome fires `beforeinstallprompt` once,
-// early; if nothing is listening yet, the chance to offer the install is lost. So this file is the first import in
-// main.jsx, long before any screen mounts. The state is mirrored on window.__dettavoInstall for debugging.
 import { markInstalled } from './isPWAInstalled.js';
 
 let state = { prompt: null, installed: false };

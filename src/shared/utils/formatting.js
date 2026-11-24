@@ -29,7 +29,6 @@ export function formatTimecode(milliseconds) {
   return `${String(minutes).padStart(2, '0')}:${String(Math.floor(secondTenths / 10)).padStart(2, '0')}.${secondTenths % 10}`;
 }
 
-// A job's estimated time left (guide 9): "Less than a minute left", "About 4 min left", "About 1 h 20 min left".
 export function formatTimeLeft(seconds) {
   if (seconds < 60) return 'Less than a minute left';
   const minutes = Math.round(seconds / 60);
@@ -54,7 +53,6 @@ export function formatGigabytes(bytes) {
   return (bytes / 1024 ** 3).toFixed(1);
 }
 
-// "ahorra-ep3-intro.mov" -> "ahorra-ep3-intro".
 export function withoutExtension(fileName) {
   const dot = fileName.lastIndexOf('.');
   return dot > 0 ? fileName.slice(0, dot) : fileName;

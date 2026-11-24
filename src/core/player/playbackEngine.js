@@ -1,9 +1,3 @@
-// Preview playback across timeline clips (guide 8.7, Build Plan 15). Two media elements: the active one plays the
-// current clip while the other has the next clip loaded, paused at its first kept moment. One requestAnimationFrame
-// loop reads the active element's time, skips cuts when asked, hands over at each clip join and tells its listeners
-// the timeline time. Plain DOM, no React; usePlayback wires it up. Preview jumps can be a frame late; export is exact.
-
-// A cut starting this close ahead is skipped now rather than a frame late (8.7).
 const SKIP_LEAD_MS = 30;
 // The active clip counts as finished this close to its last kept moment.
 const END_SLACK_MS = 15;
@@ -30,10 +24,6 @@ export class PlaybackEngine {
     this.keepsByClip = new Map();
   }
 
-  // ---- Wiring
-
-  // Called by the video elements' refs, with null when one goes away. Both play the clip's proxy as a CORS request,
-  // so seeking works across origins (8.7).
   attach(index, element) {
     const slot = this.slots[index];
     if (slot.element === element) return;
@@ -99,8 +89,6 @@ export class PlaybackEngine {
     return this.spans.length ? this.spans[this.spans.length - 1].timelineEndMs : 0;
   }
 
-  // ---- Controls
-
   seek(timelineMs) {
     if (!this.spans.length) {
       this.spanIndex = -1;
@@ -149,8 +137,6 @@ export class PlaybackEngine {
     if (this.playing) this.pause();
     else this.play();
   }
-
-  // ---- The loop
 
   tick = () => {
     if (!this.playing) return;
@@ -216,13 +202,10 @@ export class PlaybackEngine {
     this.frame = requestAnimationFrame(this.tick);
   }
 
-  // The end of the timeline: playback stops and goes back to the start, as in the prototype.
   finish() {
     this.pause();
     this.seek(0);
   }
-
-  // ---- Helpers
 
   listFor(map, clipId) {
     if (!map.has(clipId)) map.set(clipId, []);

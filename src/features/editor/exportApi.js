@@ -1,5 +1,3 @@
-// Exporting the timeline (guide 8.9, Build Plan 18): start the job, cancel it, find the finished file, show it in
-// Finder or download it. Every export is STANDARD quality; the dialog has no quality choice (prototype).
 import { apiUrl } from '@core/http/apiUrl.js';
 import { endpoints } from '@core/http/endpoints.js';
 import { httpClient } from '@core/http/httpClient.js';
@@ -27,7 +25,6 @@ export function downloadExport(projectId, file) {
   link.remove();
 }
 
-// The last format used (18d), kept in this browser. Storage can be missing; MP4 is the default then.
 export function loadExportFormat() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}').format ?? 'MP4';

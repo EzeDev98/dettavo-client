@@ -5,7 +5,6 @@ import { httpClient } from '@core/http/httpClient.js';
 import { endpoints } from '@core/http/endpoints.js';
 import { queryKeys } from '@core/data/queryKeys.js';
 
-// Guide 9: while the server is down the app retries every 3 s and recovers on its own.
 const STATUS_POLL_INTERVAL = 3_000;
 
 export const fetchSystemStatus = ({ refresh = false } = {}) =>

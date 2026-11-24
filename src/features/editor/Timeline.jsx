@@ -8,14 +8,11 @@ import { usePlayer, usePlayerClock } from './playerContext.js';
 import { drawnStretches, drawTimeline, timelinePieces } from './timelineDrawing.js';
 import useTimelineMedia from './timelineMediaApi.js';
 
-// Ruler steps (guide 8.8): labels stay at least 64 px apart; minor ticks use the next smaller step when 6 px apart.
 const RULER_STEPS_MS = [100, 500, 1000, 5000, 10_000, 30_000, 60_000, 300_000];
 const LABEL_SPACING_PX = 64;
 const TICK_SPACING_PX = 6;
-// Zooming with ⌘-scroll or a pinch: how much one wheel unit zooms (prototype).
 const WHEEL_ZOOM = 0.01;
 
-// The ruler (Build Plan 16c, prototype ruler()): a minor tick each step, a major tick with a label each larger step.
 function TimelineRuler({ view, hidden }) {
   const ticks = useMemo(() => {
     const { pixelsPerSecond, startMs, spanMs } = view;
@@ -52,14 +49,6 @@ function TimelineRuler({ view, hidden }) {
   );
 }
 
-// The timeline (Build Plan 16a, 16b, 16d, 16f; prototype 5b and 5c, laid out like CapCut): the ruler, then one block
-// per timeline clip, end to end, showing its filmstrip and waveform, with the selection band on top. The playhead runs
-// down through the ruler and the track; pressing on the ruler, on empty track or on the playhead's handle and dragging
-// scrubs. A clip is divided into pieces at its splits (⌘B or Split); clicking a piece selects it, and Delete cuts it
-// out. ⌘-scroll or a pinch zooms around the pointer; a sideways scroll pans when zoomed. Blocks are dragged to reorder
-// them or onto the tray to take them off; a ready tile dropped on the track goes where the accent line shows.
-// axis (timelineAxis): everything is drawn in its time. Edited (Skip cuts on): a cut takes no space, so each block is
-// as long as what is kept of its clip. Timeline time (Skip cuts off): blocks at full length with the cuts over them.
 export function Timeline({ projectId, view, axis, waveGain = 1 }) {
   const { state, dispatch, spans, plan } = useEditor();
   const { engine, playing } = usePlayer();
@@ -184,7 +173,6 @@ export function Timeline({ projectId, view, axis, waveGain = 1 }) {
   // Each timeline clip where it is drawn: { span, startMs, endMs } in the axis's time.
   const blocks = spans.map((span) => ({ span, startMs: axis.toAxis(span.timelineStartMs), endMs: axis.toAxis(span.timelineEndMs) }));
 
-  // Where a dropped clip lands: before the first other clip whose middle is right of the pointer (prototype insAt).
   const insertionIndex = (event, clipId) => {
     const atMs = view.timeAt(event.clientX);
     return blocks.filter(({ span, startMs, endMs }) => span.clipId !== clipId && (startMs + endMs) / 2 < atMs).length;

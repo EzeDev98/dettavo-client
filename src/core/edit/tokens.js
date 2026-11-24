@@ -1,19 +1,10 @@
-// Tokens (guide 4.9, Build Plan 12a). The editor works on one ordered list built from the timeline: for each
-// timeline clip in order, its lead-in pause, then word, pause, word, pause and so on. A clip with n words gives
-// 2n + 1 tokens; one with no words is a single pause from 0 to its end. Pauses are derived, never stored, and every
-// id starts with its clip id. Pure, no React. EditPlanner in dettavo-server follows the same rules.
-
 export const leadInId = (clipId) => `${clipId}/g:start`;
 export const wordTokenId = (clipId, wordId) => `${clipId}/${wordId}`;
 export const pauseTokenId = (clipId, wordId) => `${clipId}/g:${wordId}`;
 export const clipIdOf = (tokenId) => tokenId.slice(0, tokenId.indexOf('/'));
 
-// Rule 8: a timeline clip that is not READY has no tokens and is kept whole.
 export const isReadyClip = (clip) => clip?.state === 'READY' && Boolean(clip.transcript);
 
-// Where each timeline clip sits: [{ clipId, ready, durationMs, timelineStartMs, timelineEndMs }]. Each clip starts
-// where the previous one ends, at its full unedited length. Ids of missing clips, and a clip's second appearance,
-// are skipped (rules 7 and 8).
 export function timelineSpans(clips, timeline) {
   const byId = new Map(clips.map((clip) => [clip.id, clip]));
   const spans = [];
@@ -44,9 +35,6 @@ function paragraphIdsOf(transcript) {
   return ids;
 }
 
-// clips: the project's clips. timeline: clip ids in order. Each token: { index, id, clipId, kind ('word' or 'pause'),
-// text (words only), startMs, endMs (clip time), timelineStartMs, timelineEndMs, paragraphId }. A pause belongs to
-// the paragraph of the word before it; a lead-in to the clip's first paragraph.
 export function buildTokens(clips, timeline) {
   const byId = new Map(clips.map((clip) => [clip.id, clip]));
   const tokens = [];

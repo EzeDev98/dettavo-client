@@ -10,11 +10,7 @@ import useTimelineMedia from './timelineMediaApi.js';
 const THRESHOLDS = [300, 500, 800, 1000, 1500].map((ms) => ({ value: ms, label: `${(ms / 1000).toFixed(1)}s` }));
 const KEEPS = [0, 200, 300, 500].map((ms) => ({ value: ms, label: formatSeconds(ms) }));
 
-// The pause bar under the transcript pane's header (guide 8.6, prototype .pb), working on the audio: "<total>s of
-// silence · <n> over <t>s", then Longer than (the max pause), shorten to, and Cut <n> silences. The silences come from
-// each timeline clip's audio level, so silence whisper folded into a word is found too. Cutting replaces any silences
-// cut before, in one undoable edit; Restore silences takes them all back. The two choices are remembered in this
-// browser.
+
 export default function PauseBar() {
   const { projectId } = useParams();
   const { state, dispatch, spans } = useEditor();

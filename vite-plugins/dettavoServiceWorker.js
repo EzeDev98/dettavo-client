@@ -1,9 +1,3 @@
-// Build-time half of the service worker (public/sw.js), from Ahorra. After each build it:
-//   1. stamps a build id into dist/sw.js, so every build is a new worker;
-//   2. injects the precache list (every built file the app shell needs) into dist/sw.js;
-//   3. writes dist/version.json, which the open app reads to notice a newer build;
-//   4. copies the built stylesheet links into dist/offline.html, so that page uses the same tokens.
-// Ahorra's live-site version lookup is left out: Dettavo runs only on this Mac, so the build id is enough.
 import { execSync } from 'node:child_process';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';

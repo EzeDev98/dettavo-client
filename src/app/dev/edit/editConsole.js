@@ -1,10 +1,3 @@
-// Dev only (Build Plan 12b to 12d): the edit engine from the browser console, as window.dettavoEdit. main.jsx loads
-// it only in a dev build. Every call reads the project fresh from the server.
-//   await dettavoEdit.tokens(id, ['c01'])                          tokens for a timeline (default: the saved one)
-//   await dettavoEdit.plan(id, { timeline, removed, trims, padMs }) the browser's plan; omitted fields use the saved edits
-//   await dettavoEdit.save(id, { timeline, removed, trims, padMs }) saves edits, with If-Match from the project's ETag
-//   await dettavoEdit.compare(id)                                  the browser's and the server's plan for the saved edits
-//   await dettavoEdit.map(id, { ... })                             the plan, spans and time conversions, to try by hand
 import { apiUrl } from '@core/http/apiUrl.js';
 import { endpoints } from '@core/http/endpoints.js';
 import { buildTokens, timelineSpans } from '@core/edit/tokens.js';

@@ -26,10 +26,6 @@ function loadImage(url) {
   });
 }
 
-// What the timeline draws inside each clip on it: Map of clipId to { durationMs, video, levels, filmstrip, image }.
-// levels: Uint8Array, one byte per frame (0 is -60 dB, 255 is 0 dB), spread evenly over durationMs; filmstrip: the
-// server's layout ({ intervalMs, count, columns, tileWidth, tileHeight }) once READY; image: the loaded filmstrip.
-// Each is null until it arrives. Cached for the session; a clip whose cache is rebuilt fetches them again.
 export default function useTimelineMedia(projectId, clips, timeline) {
   const onTimeline = new Set(timeline);
   const timelineClips = clips.filter((clip) => onTimeline.has(clip.id));

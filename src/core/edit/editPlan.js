@@ -1,20 +1,10 @@
-// The edit plan (guide 4.9 rules 1 to 9, Build Plan 12b): which parts of each timeline clip are cut and which are
-// kept. Pure, no React. EditPlanner in dettavo-server implements the same numbered rules; change both together.
 import { timelineSpans } from './tokens.js';
 
-// Rule 5, app.edit.min-keep-segment-ms on the server.
 export const MIN_KEEP_SEGMENT_MS = 20;
 
 // The middle of a pause: the furthest a cut's padding may reach into a kept pause, so it never touches a kept word.
 const midpoint = (token) => token.startMs + Math.floor((token.endMs - token.startMs) / 2);
 
-// Rules 2 to 5 for one clip, on its own source time. Consecutive removed tokens merge into one cut (rule 2), and a pause
-// with a removed token on both sides is removed with them (rule 2b), so a deleted passage leaves none of its gaps
-// behind. A trimmed pause longer than keepMs gets a cut centred in it that never merges with its neighbours (rule 3).
-// Rule 4, for a cut holding a word, at each end: where the cut ends on a removed pause, the edge moves padMs into the
-// cut, clear of the kept word beside it; where it ends on a removed word, the edge moves padMs out into the kept pause
-// beside it (no further than that pause's middle), so no sound of the removed word is left. Cuts are clamped to the
-// clip (rule 5).
 function planClipCuts(tokens, removed, trims, padMs, durationMs) {
   const isRemoved = (index) => {
     const token = tokens[index];
@@ -64,8 +54,6 @@ function planClipCuts(tokens, removed, trims, padMs, durationMs) {
     .filter((cut) => cut.endMs > cut.startMs);
 }
 
-// Rule 9: a range cut takes out exactly startMs to endMs of its clip, clamped to the clip, with no padding. The tokens
-// wholly inside it go with it, so its words leave the transcript like removed ones.
 function planRangeCuts(rangeCuts, tokens, durationMs) {
   return rangeCuts
     .map((rangeCut) => ({ ...rangeCut, startMs: Math.max(0, rangeCut.startMs), endMs: Math.min(durationMs, rangeCut.endMs) }))
@@ -79,9 +67,6 @@ function planRangeCuts(rangeCuts, tokens, durationMs) {
     }));
 }
 
-// Rule 5: a keep segment shorter than MIN_KEEP_SEGMENT_MS is absorbed into the cut next to it. Between two cuts the
-// two become one (overlapping cuts too); at the clip's start or end the cut grows to the edge. Merged cuts keep their
-// kind when it is the same, and become REMOVE when it is not.
 function absorbTinyKeeps(cuts, durationMs) {
   const merged = [];
   [...cuts]
@@ -107,14 +92,6 @@ function absorbTinyKeeps(cuts, durationMs) {
   return merged;
 }
 
-// tokens: from buildTokens. timeline: clip ids in order. clips: the project's clips. removed: a Set or array of token
-// ids. trims: a Map of pause id to keepMs, or [{ pauseId, keepMs }]. padMs: the project's padding. rangeCuts:
-// [{ id, clipId, startMs, endMs, kind ('MANUAL' or 'SILENCE') }].
-// Returns { cuts, keepSegments, editedMs, removedMs, timelineMs }:
-//   cut          { clipId, startMs, endMs, timelineStartMs, timelineEndMs, kind ('REMOVE', 'TRIM', 'MANUAL' or
-//                  'SILENCE'), tokenIds, rangeCutIds }
-//   keep segment { clipId, startMs, endMs, timelineStartMs, editedStartMs }
-// Times without a prefix are the clip's own; timeline times are unedited; both lists are in timeline order (rule 6).
 export function editPlan(tokens, timeline, clips, removed, trims, padMs, rangeCuts = []) {
   const removedIds = removed instanceof Set ? removed : new Set(removed);
   const trimsById = trims instanceof Map ? trims : new Map(trims.map((trim) => [trim.pauseId, trim.keepMs]));
@@ -136,7 +113,6 @@ export function editPlan(tokens, timeline, clips, removed, trims, padMs, rangeCu
   let timelineMs = 0;
 
   timelineSpans(clips, timeline).forEach(({ clipId, ready, durationMs, timelineStartMs }) => {
-    // Rule 8: a clip that is not READY has no tokens, so only its range cuts apply (rule 9).
     const clipTokens = ready ? tokensByClip.get(clipId) ?? [] : [];
     const clipCuts = absorbTinyKeeps([
       ...planClipCuts(clipTokens, removedIds, trimsById, padMs, durationMs),

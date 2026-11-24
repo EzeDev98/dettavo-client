@@ -1,7 +1,3 @@
-// Time conversions (Build Plan 12c). Clip time is milliseconds on one clip's own source. Timeline time is the
-// unedited timeline: each clip starts where the previous one ends. Edited time is what plays and exports: timeline
-// time minus every cut before it (rule 6). spans come from timelineSpans, plan from editPlan. Pure, no React.
-
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 // Timeline time to { clipId, clipMs }, or null for an empty timeline. The very end belongs to the last clip.

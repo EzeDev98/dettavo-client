@@ -1,6 +1,3 @@
-// All Setup and Service-down copy (prototype 5f), so changing a word never means touching a screen.
-// The emoji are decorative and hidden from screen readers.
-
 export const INSTALL_TOOLS_COMMAND = './scripts/install-tools.sh';
 
 export const SETUP_COPY = {
@@ -21,7 +18,6 @@ export const SETUP_COPY = {
   notFound: 'Not found',
 };
 
-// The four cards, in the prototype's order.
 export const TOOLS = {
   ffmpeg: { emoji: '🎞️', name: 'FFmpeg', description: 'Cuts, joins and exports the video' },
   ffprobe: { emoji: '🔍', name: 'FFprobe', description: 'Reads each file’s length and format' },

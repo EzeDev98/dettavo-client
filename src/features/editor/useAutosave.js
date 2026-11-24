@@ -7,13 +7,10 @@ import { editsRequest } from './editorReducer.js';
 import { loadProject, saveEdits, saveEditsOnExit } from './editsApi.js';
 
 const DEBOUNCE_MS = 800;
-// After a failed save: 2, 5, then every 10 s. The third failure in a row also says so in a toast (guide 9).
+
 const RETRY_DELAYS_MS = [2_000, 5_000, 10_000];
 const FAILURES_BEFORE_TOAST = 3;
 
-// Autosave (guide 8.11, Build Plan 14f): every edit, undo, redo and timeline change is saved 800 ms after the last
-// one. A 409 means another window saved first: the project is loaded again and the editor starts from it. Leaving
-// the page or the editor sends any edits still waiting.
 export default function useAutosave(projectId) {
   const { state, dispatch } = useEditor();
   const queryClient = useQueryClient();

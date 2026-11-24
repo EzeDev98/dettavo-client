@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-// Zoom limit (guide 8.8): from Fit, the whole timeline across the width, up to 300 px per second.
 export const MAX_PIXELS_PER_SECOND = 300;
 
-// What part of the timeline the ruler and the track show (guide 8.8, prototype pps and s0). A project opens at Fit.
-// Returns { trackRef, width, fit, fitPixelsPerSecond, pixelsPerSecond, startMs, spanMs, percentAt, timeAt, zoomTo,
-// panBy, reveal }.
-// percentAt(ms) places a moment in percent of the track's width; timeAt(clientX) is the moment under the pointer.
 export default function useTimelineView(timelineMs) {
   const [width, setWidth] = useState(0);
   const [zoom, setZoom] = useState({ pixelsPerSecond: 0, startMs: 0 }); // 0 means Fit
@@ -27,7 +22,6 @@ export default function useTimelineView(timelineMs) {
   const totalMs = Math.max(timelineMs, 1);
   const fitPps = width ? width / (totalMs / 1000) : 1;
 
-  // The left edge never leaves the timeline; a view as wide as the whole timeline starts at 0.
   const clampStart = useCallback((startMs, pixelsPerSecond) => {
     const spanMs = ((width || 1) / pixelsPerSecond) * 1000;
     return spanMs >= totalMs ? 0 : Math.min(Math.max(0, startMs), totalMs - spanMs);

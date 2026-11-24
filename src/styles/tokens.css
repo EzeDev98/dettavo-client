@@ -1,12 +1,6 @@
-/* Dettavo design tokens. Ahorra's three layers; nothing else in the app holds a colour, size or duration.
-   1. Palette    raw values from the approved prototype. Dark only. Only layer 2 reads these.
-   2. Semantic   meaning. Points straight at the dark palette (no light-dark()).
-   3. Component  sizes and spacing of the building blocks: Ahorra's, plus the editor's. */
-
 :root {
   color-scheme: dark;
 
-  /* ---------- 1. Palette ---------- */
   --p-canvas: #141414;
   --p-bg: #1e1e1e;
   --p-surface: #252526;
@@ -19,8 +13,6 @@
   --p-white: #ffffff;
   --p-black: #000000;
 
-  /* The accent is Dettavo's own white (--p-text), with pure white on hover (replaces orange, 13 Nov 2026). Text on
-     it is dark. */
   --p-on-accent: #1e1e1e;
   --p-red-300: #f48771;
   --p-amber-300: #e5a06a;
@@ -45,7 +37,6 @@
   --p-pause-trimmed: rgba(95, 196, 162, 0.1);
   --p-scrim: rgba(0, 0, 0, 0.5);
 
-  /* ---------- 2. Semantic ---------- */
   --color-canvas: var(--p-canvas); /* the window behind Home's and the editor's panels (CapCut style) */
   --color-bg: var(--p-bg);
   --color-surface: var(--p-surface);
@@ -78,9 +69,9 @@
   /* States. Always paired with a word or icon, never colour alone. */
   --color-error: var(--p-red-300);
   --color-connected: var(--p-green-300);
-  --color-under: var(--p-green-300);  /* Ahorra's "good" state: success toasts, Bar */
-  --color-over: var(--p-amber-300);   /* Ahorra's "watch out" state: Bar */
-  --color-ok: var(--p-green-300);     /* Setup: a tool that was found */
+  --color-under: var(--p-green-300);
+  --color-over: var(--p-amber-300);
+  --color-ok: var(--p-green-300);
 
   /* Editor */
   --color-selection: var(--p-selection);
@@ -132,7 +123,6 @@
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 
-  /* ---------- 3. Component ---------- */
   --button-height: 28px;        /* Dettavo's buttons, icon buttons, dropdown buttons and Fit */
   --button-height-export: 32px; /* the top bar's Export and the export dialog's buttons */
   --button-height-block: 42px;
@@ -155,7 +145,6 @@
   --z-toast: 100;
   --z-splash: 120;
 
-  /* Loading screen (from Ahorra). index.html holds a static copy of these values: change both together. */
   --splash-logo-size: 151px;
   --splash-logo-size-page: 96px;
   --splash-gap: 16px;
@@ -206,7 +195,6 @@
   --slider-thumb-size: 12px;
   --slider-thumb-hover-scale: 1.2;
 
-  /* Clips tray (prototype .tray, .tiles, .tile) */
   --tray-pad-bottom: 10px;
   --clip-tile-width: 128px;
   --clip-tiles-pad-bottom: 2px;
@@ -224,7 +212,6 @@
   --badge-pad-x: 6px;
   --badge-offset: 6px;
 
-  /* First-run flow (prototype 5f: Onboarding, Install, hand-off, Setup, Service down) */
   --flow-screen-width: 500px;
   --flow-bar-height: 56px;
   --flow-section-gap: 24px;    /* between the body's parts, above the footer, and inside the card */

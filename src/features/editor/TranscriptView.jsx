@@ -12,15 +12,11 @@ import { usePlayer, usePlayerClock } from './playerContext.js';
 import useTimelineMedia from './timelineMediaApi.js';
 import { shortenedPauses, speechInPauses, transcriptRows } from './transcriptRows.js';
 
-// Paragraph rows are measured as they render; these are only first guesses.
 const ESTIMATED_HEIGHTS = { divider: 22, paragraph: 112, state: 40, noSpeech: 40, allCut: 40 };
 const OVERSCAN = 6;
 const CURRENT = 'transcript-token--current';
-// Shorter pauses render as hidden spans that still count in a selection (guide 8.6).
 const CHIP_MIN_MS = 300;
 
-// Dragging past the top or bottom of the pane scrolls it: within this many pixels of the edge, or beyond it, the pane
-// scrolls, faster the further the pointer goes, up to the most pixels per frame.
 const DRAG_SCROLL_EDGE = 40;
 const DRAG_SCROLL_MAX = 28;
 
@@ -29,9 +25,6 @@ const tokenIndexOfElement = (target) => {
   return element ? Number(element.dataset.i) : null;
 };
 
-// The token a drag points at. The pointer is held inside the pane, so a drag that leaves it still selects along the
-// edge. Over the gap between words, the time column or a line's empty end, the nearest token of that paragraph counts:
-// on the pointer's line by distance across, otherwise the closest line.
 function tokenIndexAtPoint(pane, x, y) {
   const box = pane.getBoundingClientRect();
   const px = Math.min(Math.max(x, box.left + 1), box.right - 1);
@@ -69,17 +62,10 @@ function edgeScroll(pane, y) {
   return 0;
 }
 
-// The transcript of every timeline clip in order (guide 8.6, Build Plan 13c to 13e): only the visible paragraphs
-// are in the DOM. Mouse: press on a word or pause to select it, drag to extend (dragging to or past the top or bottom
-// edge scrolls the pane, so a long passage can be selected in one drag), Shift-click or ⌘-click to extend from the
-// anchor, release without dragging to seek, press on empty space to clear. statusByClip: Map of clip id to its
-// tile status, for clips on the timeline that are not ready yet. While playing, the playing word is highlighted and
-// kept in the middle of the pane (15d), outside React.
 export default function TranscriptView({ statusByClip }) {
   const { state, dispatch, spans, plan, cutIds } = useEditor();
   const { tokens, selection, clips, trims, pauseThresholdMs } = state;
   const scrollRef = useRef(null);
-  // anchor: the token the drag started on. focus: the token it reaches now. x, y: the pointer. frame: the running loop.
   const drag = useRef({ anchor: null, focus: null, moved: false, x: 0, y: 0, frame: 0 });
   const current = useRef({ index: -1, element: null });
   const { playing } = usePlayer();
@@ -89,8 +75,6 @@ export default function TranscriptView({ statusByClip }) {
   const rows = useMemo(() => transcriptRows(tokens, spans, cutIds), [tokens, spans, cutIds]);
   // Pauses a silence or timeline cut shortens show what they keep, like a trimmed pause.
   const shortened = useMemo(() => shortenedPauses(tokens, plan.cuts), [tokens, plan.cuts]);
-  // Sound inside a pause that has no word: shown as a speech chip. The map is kept while its content is the same, so
-  // the paragraphs only render again when it changes.
   const { projectId } = useParams();
   const media = useTimelineMedia(projectId, clips, state.timeline);
   const speechFound = speechInPauses(tokens, media);
@@ -114,8 +98,6 @@ export default function TranscriptView({ statusByClip }) {
     playingNow.current = playing;
   });
 
-  // The playing word gets the current class. Its row may not be rendered yet (virtual list), or React may have just
-  // rewritten its classes, so a word that should be marked and is not is looked up again on the next frame.
   usePlayerClock((now) => {
     const found = tokenIndexAt(tokens, now);
     const index = found >= 0 && tokens[found].kind === 'word' ? found : -1;
@@ -140,9 +122,6 @@ export default function TranscriptView({ statusByClip }) {
     }
   });
 
-  // One frame of a drag: scroll when the pointer is at or past an edge, then extend the selection to the token under it.
-  // It runs every frame while the button is down, so the selection keeps growing while the pane scrolls under a
-  // pointer that is not moving.
   const dragFrame = () => {
     const pane = scrollRef.current;
     const active = drag.current;
@@ -158,8 +137,6 @@ export default function TranscriptView({ statusByClip }) {
     active.frame = requestAnimationFrame(dragFrame);
   };
 
-  // While the button is down the pointer is followed anywhere in the window. Releasing ends the drag; a press that
-  // never moved off its token seeks to it.
   useEffect(() => {
     const onMouseMove = (event) => {
       drag.current.x = event.clientX;
@@ -183,8 +160,7 @@ export default function TranscriptView({ statusByClip }) {
 
   const onMouseDown = (event) => {
     if (event.button !== 0) return;
-    // A press in a paragraph's text starts from the nearest token, so one that lands in the gap between two words or past
-    // a line's end (easy with a trackpad) still selects and drags.
+
     const inText = event.target instanceof Element && event.target.closest('.paragraph__text');
     const index =
       tokenIndexOfElement(event.target) ?? (inText ? tokenIndexAtPoint(scrollRef.current, event.clientX, event.clientY) : null);
@@ -276,12 +252,6 @@ function Row({ row, tokens, selection, edits, names, statusByClip }) {
   }
 }
 
-// One paragraph: its start time in timeline time, then its words and pauses. Pauses of 0.3 s or more are chips
-// ("1.9s"); shorter ones are hidden spans. Every token carries data-i, its index, for the delegated mouse handlers.
-// Cut tokens are not rendered at all: they are under Cuts. A trimmed pause, or one a silence or timeline cut shortens,
-// turns green and shows what it keeps ("1.9s → 0.3s"), and an untouched one over the pause bar's threshold turns amber.
-// An untouched pause with sound but no word in it (speech whisper left out) is a speech chip ("speech 1.2s"): click it
-// to hear it, select it and Delete to cut it like a word.
 const Paragraph = memo(function Paragraph({
   tokens, first, last, startMs, selectedFirst, selectedLast, cutIds, trims, shortened, speech, thresholdMs,
 }) {

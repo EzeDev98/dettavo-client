@@ -6,13 +6,9 @@ import { HANDOFF_COPY } from './installContent.js';
 import LaptopFeed from './LaptopFeed.jsx';
 import './install.css';
 
-// How long to wait after window.close() before concluding the browser refused. Browsers ignore close() on tabs they
-// did not open from a script, which is every tab a person opened themselves.
+
 const CLOSE_FALLBACK_MS = 400;
 
-// The install hand-off, from Ahorra (prototype 5f). First "Installing Dettavo…" with Continue. Continue tries to close
-// the tab; when the browser refuses, the screen becomes "You're all set!" and asks the person to close the tab.
-// Nothing here navigates: the point is to move the person off the browser and onto the installed app.
 export default function InstallHandoff() {
   const [closeBlocked, setCloseBlocked] = useState(false);
   const timer = useRef(null);

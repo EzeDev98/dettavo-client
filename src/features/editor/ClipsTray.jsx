@@ -7,17 +7,12 @@ import { currentClipDrag, endClipDrag } from './clipDrag.js';
 import { useEditor } from './editorContext.js';
 import './clips-tray.css';
 
-// The Clips tray at the foot of the transcript pane (guide 8.6, prototype 5b and 5d): every clip in the project in
-// the order added, in one row that scrolls sideways, then the dashed plus tile that opens the file picker.
-// over: files are being dragged over the editor, so the tray lights up. busyClipId: the clip whose Retry is sending.
-// A timeline block dropped here leaves the timeline (5c); the tray lights up while one is over it.
 export default function ClipsTray({ projectId, items, over, busyClipId, onAdd, onAction, onDelete }) {
   const { state, dispatch } = useEditor();
   const [blockOver, setBlockOver] = useState(false);
   const tilesRef = useRef(null);
   const shownCount = useRef(items.length);
 
-  // Added files land at the end, and the tray scrolls to show them (11a).
   useEffect(() => {
     if (items.length > shownCount.current) {
       const tiles = tilesRef.current;

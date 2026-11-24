@@ -1,4 +1,3 @@
-// First import: catches Chrome's install prompt, which fires once, early (Build Plan 20b).
 import '@core/pwa/installPrompt.js';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -15,7 +14,6 @@ import App from '@app/App.jsx';
 registerServiceWorker();
 appUpdate.start();
 
-// Dev only: window.dettavoEdit, the edit engine in the console (Build Plan 12). Left out of a build entirely.
 if (import.meta.env.DEV) import('@app/dev/edit/editConsole.js');
 
 createRoot(document.getElementById('root')).render(

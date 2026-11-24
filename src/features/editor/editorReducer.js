@@ -1,8 +1,3 @@
-// The editor's state (guide 8.5) and every change to it. Pure: tokens come from core/edit.
-// An edit (remove, restore, trim, padding, a timeline move, a split, a deleted piece, removed silences) pushes a
-// snapshot of { timeline, removed, trims, padMs, rangeCuts, splits } onto past, clears future and both selections,
-// exactly like the prototype's edit(). changeCount counts edits, undos and redos; autosave compares it with
-// savedChangeCount.
 import { buildTokens, clipIdOf, isReadyClip, timelineSpans } from '@core/edit/tokens.js';
 import { loadPauseChoices } from './pauses.js';
 
@@ -12,8 +7,6 @@ const MIN_PIECE_MS = 100;
 
 const newRangeCutId = () => `r-${crypto.randomUUID()}`;
 
-// What the tokens depend on, per timeline clip. They are rebuilt only when this changes: the timeline changes or a
-// timeline clip turns READY (8.5).
 function tokenSourceOf(clips, timeline) {
   const byId = new Map(clips.map((clip) => [clip.id, clip]));
   return timeline.map((clipId) => {
@@ -45,10 +38,6 @@ function editsOf(project) {
   };
 }
 
-// project: GET /projects/{id}. selection is { first, last, anchor } (token indexes) or null. pieceSelection is the
-// piece of a clip selected on the timeline, { clipId, startMs, endMs } in clip time, or null; only one of the two is
-// ever set. seekRequest is the timeline time the user last asked to go to, numbered so that asking twice for the same
-// time still moves the player.
 export function initialEditorState(project) {
   const { thresholdMs, keepMs } = loadPauseChoices();
   const empty = { tokenSource: null };
@@ -107,13 +96,9 @@ const selectedIds = (state) => {
   return tokens.slice(selection.first, selection.last + 1).map((token) => token.id);
 };
 
-// Remove is possible while some selected token is still kept or only trimmed. Cut tokens are not in the transcript
-// (they come back from the Cuts list), so the transcript's Restore only undoes trims: a selection that spans a cut
-// never brings the hidden cut back.
 export const canRemove = (state) => selectedIds(state).some((id) => !state.removed.has(id) || state.trims.has(id));
 export const canRestore = (state) => selectedIds(state).some((id) => state.trims.has(id));
 
-// Removing a pause clears its trim: the two are never both set (rule 3).
 function removeIds(state, ids) {
   const removed = new Set(state.removed);
   const trims = new Map(state.trims);
@@ -309,13 +294,11 @@ export function editorReducer(state, action) {
         ? restoreIds(state, action.tokenIds, action.rangeCutIds)
         : state;
 
-    // A clip placed on the timeline, moved along it or taken off it (16f). Each clip appears at most once (rule 8).
     case 'setTimeline': {
       const timeline = [...new Set(action.timeline)];
       return timeline.join() === state.timeline.join() ? state : edit(state, { timeline });
     }
 
-    // The Padding dropdown (16e): one undoable edit, saved with the others.
     case 'setPadding':
       return action.padMs === state.padMs ? state : edit(state, { padMs: action.padMs });
 

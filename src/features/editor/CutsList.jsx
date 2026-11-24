@@ -4,9 +4,6 @@ import { formatTimecode } from '@shared/utils/formatting.js';
 import { useEditor } from './editorContext.js';
 import { formatSeconds } from './pauses.js';
 
-// What a cut takes out: its words in quotes; for a shortened pause "Pause 1.9s shortened to 0.3s"; for a silence over
-// the max pause "Silence 2.4s"; for a deleted piece with no words "Piece 3.1s"; otherwise "Pause 1.9s" with the length
-// cut (prototype lbl()).
 function cutLabel(cut, tokensById, trims) {
   const words = cut.tokenIds.map((id) => tokensById.get(id)).filter((token) => token?.kind === 'word');
   if (words.length) return `“${words.map((token) => token.text).join(' ')}”`;
@@ -20,8 +17,6 @@ function cutLabel(cut, tokensById, trims) {
   return `Pause ${seconds}s`;
 }
 
-// The Cuts tab (guide 8.6, Build Plan 14d): one row per cut in timeline order, with its timeline times, its label in
-// red and Restore, which seeks 1 s before the cut and brings its tokens and range cuts back in one undoable edit.
 export default function CutsList() {
   const { state, dispatch, plan } = useEditor();
   const tokensById = useMemo(() => new Map(state.tokens.map((token) => [token.id, token])), [state.tokens]);

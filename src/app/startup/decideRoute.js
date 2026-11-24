@@ -25,9 +25,6 @@ async function areToolsReady() {
   }
 }
 
-// The one routing decision at launch, from Ahorra (Plan 5e), asked in this order: installed? tools ready?
-// Resolves to the path the app must open on, or null when a browser tab may stay where it is.
-// Dettavo has no accounts, so where Ahorra goes on to Welcome and sign-in, Dettavo goes to Home.
 export async function decideRoute() {
   // Only the installed app's own window goes on. A browser tab stays on Onboarding, even where the app is installed.
   const installed = env.skipInstallGuard || isRunningAsApp();

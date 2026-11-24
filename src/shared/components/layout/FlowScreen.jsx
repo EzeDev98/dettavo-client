@@ -15,13 +15,6 @@ function useIgnoreFileDrops() {
   }, []);
 }
 
-// Frame for the first-run screens (prototype 5f, on Ahorra's screen pattern): a column with a bar for the back button,
-// and the content centred in the height that is left.
-//   card         the content sits on a raised card (every screen but Onboarding)
-//   top          slot above the title: the logo or a hero
-//   lead         a larger description (Onboarding)
-//   bare         children go straight under the title instead of into the spaced body (Onboarding)
-//   footer       the block buttons
 export default function FlowScreen({ card = false, onBack, top, title, description, lead = false, bare = false, footer, children }) {
   useIgnoreFileDrops();
 
@@ -47,7 +40,6 @@ export default function FlowScreen({ card = false, onBack, top, title, descripti
   );
 }
 
-// One large emoji above the title (prototype .hero). Decorative: the title says what the screen is.
 export function FlowHero({ emoji }) {
   return (
     <div className="ui-flow__hero" aria-hidden="true">

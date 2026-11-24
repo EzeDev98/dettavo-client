@@ -1,4 +1,3 @@
-// Saving the edits (guide 8.11): PUT /projects/{id}/edits with If-Match holding the revision they were made on.
 import { apiUrl } from '@core/http/apiUrl.js';
 import { endpoints } from '@core/http/endpoints.js';
 import { httpClient } from '@core/http/httpClient.js';

@@ -1,5 +1,3 @@
-// The only place the app talks to dettavo-server. Ahorra's client, without tokens or cookies: every request goes to
-// the base URL from env.js, and the server accepts it because it comes from the app's own origin.
 import { env } from '@core/config/env.js';
 
 const FALLBACK_MESSAGES = {

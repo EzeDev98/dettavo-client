@@ -1,4 +1,3 @@
-// Dev only: the live job state of one project, to check useProjectEvents (Build Plan 7e).
 import { useParams } from 'react-router';
 import '@app/dev/gallery/gallery.css';
 import { Section } from '@app/dev/gallery/Section.jsx';

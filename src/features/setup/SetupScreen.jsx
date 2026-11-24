@@ -39,8 +39,6 @@ function toolCards(status) {
   ];
 }
 
-// Route /setup (prototype 5f). Shown first in the installed app whenever a tool is missing. Check again asks the
-// server to look for the tools again; once all are found, Continue goes Home.
 export default function SetupScreen({ status }) {
   const navigate = useNavigate();
   const toast = useToast();

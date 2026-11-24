@@ -22,7 +22,6 @@ function FirstRunFrame() {
   );
 }
 
-// The route table, from Ahorra's AppRoutes. A path nobody declared redirects to Onboarding.
 // location: the location to show. AnimatedRoutes passes it, so the old screen can stay up while a transition plays.
 export default function AppRoutes({ location }) {
   return (

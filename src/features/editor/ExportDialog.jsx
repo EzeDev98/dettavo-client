@@ -19,11 +19,6 @@ const FORMATS = [
 
 const ACTIVE = new Set(['QUEUED', 'RUNNING']);
 
-// The export dialog (guide 8.9, Build Plan 18, prototype "Export edited recording"): the summary, the three formats
-// (MP4 hidden when no timeline clip has video), Cancel and Export. Export waits for edits still being saved, since
-// the server exports the saved edits. While the job runs the bar and "Encoding mp4 video… 40%" follow its events and
-// Cancel cancels it; on success the file name, Show in Finder and Download, and Done; on failure the message and
-// Retry. jobs: the project's jobs from its event stream.
 export default function ExportDialog({ projectId, open, onClose, jobs }) {
   const { state, plan } = useEditor();
   const [format, setFormat] = useState(loadExportFormat);
@@ -130,7 +125,6 @@ export default function ExportDialog({ projectId, open, onClose, jobs }) {
 
   const running = phase === 'running' || phase === 'finishing';
   const progress = job?.progress ?? 0;
-  // Guide 9: with every word and pause cut there is nothing to export; undo or restore first.
   const everythingCut = allReady && plan.keepSegments.length === 0;
   let status = null;
   if (!allReady) status = 'Wait for every clip on the timeline to finish';

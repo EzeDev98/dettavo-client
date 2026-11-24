@@ -32,8 +32,6 @@ import TranscriptPane from './TranscriptPane.jsx';
 import VideoPane from './VideoPane.jsx';
 import './editor-screen.css';
 
-// The editor (guide 8.5 to 8.12), laid out as the prototype's .app: the top bar, then the transcript pane (with the
-// Clips tray at its foot) beside the video pane, then the lower panel. The status bar is the app frame's.
 export default function EditorScreen() {
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -46,7 +44,6 @@ export default function EditorScreen() {
   const reuploadPickerRef = useRef(null);
   const reuploadClipId = useRef(null);
 
-  // Files picked or dropped in the editor join the open project, at the end of the tray (5e).
   const addFiles = async (picked) => {
     const files = picked.filter(isMediaFile);
     if (!files.length) {

@@ -4,8 +4,6 @@ import { useToast } from '@shared/components/ui/toastContext.js';
 import { clipName } from './clipStatus.js';
 import { useDeleteClip } from './clipsApi.js';
 
-// Deleting a clip from the tray (11c), in the same modal as deleting a project. It cannot be undone, so it says so.
-// clip: the clip to delete, or null when closed.
 export default function DeleteClipModal({ projectId, clip, onClose }) {
   const toast = useToast();
   const remove = useDeleteClip(projectId);

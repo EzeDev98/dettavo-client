@@ -5,8 +5,6 @@ import { apiUrl } from '@core/http/apiUrl.js';
 import { endpoints } from '@core/http/endpoints.js';
 import { formatClipCount, formatDuration, formatUpdated } from '@shared/utils/formatting.js';
 
-// One project on Home (prototype 5a): the first timeline clip's thumbnail with the timeline's length, the name with
-// Rename and Delete, then "<n> clips · <updated>". Rename is in place: Enter or clicking away saves, Escape cancels.
 export default function ProjectCard({ project, onOpen, onRename, onDelete }) {
   const [renaming, setRenaming] = useState(false);
   const [thumbnailFailed, setThumbnailFailed] = useState(false);

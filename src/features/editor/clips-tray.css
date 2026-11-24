@@ -1,4 +1,3 @@
-/* The Clips tray, from the approved prototype (5b, 5d): .tray, .trh, .tiles, .tile, .th, .tg, .pb, .tdel and .addt. */
 .clips-tray {
   flex: none;
   padding: var(--gap) var(--gutter) var(--tray-pad-bottom);
@@ -101,7 +100,6 @@
 .clip-tile:hover .clip-tile__delete,
 .clip-tile:focus-within .clip-tile__delete { opacity: 1; }
 
-/* A ready tile can be dragged onto the timeline; while it is, it fades (prototype .dragging). */
 .clip-tile--draggable { cursor: grab; }
 .clip-tile--dragging { opacity: var(--opacity-dragging); }
 

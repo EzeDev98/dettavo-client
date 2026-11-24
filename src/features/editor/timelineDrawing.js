@@ -1,13 +1,7 @@
-// What the timeline draws inside its clip blocks, CapCut style: a filmstrip along the top and the waveform below it
-// (the whole height for an audio clip). Pure drawing on a canvas, no React. Colours and sizes come from the canvas's
-// CSS (tokens.css), so they are defined once.
 import { waveformRange } from '@core/edit/silences.js';
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-// The pieces of each timeline clip: the stretches between its splits, in clip time, with where they sit on the
-// unedited timeline. spans from timelineSpans, splits [{ clipId, atMs }]. Returns [{ clipId, startMs, endMs,
-// timelineStartMs, timelineEndMs }] in timeline order.
 export function timelinePieces(spans, splits) {
   const byClip = new Map();
   splits.forEach(({ clipId, atMs }) => {
@@ -29,8 +23,6 @@ export function timelinePieces(spans, splits) {
   return pieces;
 }
 
-// The stretches of source drawn side by side: with Skip cuts on, each keep segment at its edited time (cut parts take
-// no space); with it off, each clip whole at its timeline time. [{ clipId, startMs, endMs, axisStartMs }].
 export function drawnStretches(plan, spans, edited) {
   if (edited) {
     return plan.keepSegments.map((segment) => ({
@@ -109,10 +101,6 @@ function drawFilmstrip(context, clip, stretch, x0, x1, width, filmHeight, pxPerM
   }
 }
 
-// CapCut style: separate thin bars rising from the bottom, each as tall as the loudest frame under it, measured from
-// just above the clip's noise floor up to its loudest frame (waveformRange), so any sound shows and where nobody
-// speaks there is no bar at all. Bars sit on a fixed grid from the stretch's left edge, so they do not shimmer while
-// scrolling.
 function drawWaveform(context, clip, stretch, x0, x1, width, top, bottom, pxPerMs, bar, gain) {
   const { levels, durationMs } = clip;
   if (!durationMs) return;

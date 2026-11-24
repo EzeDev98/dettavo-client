@@ -1,5 +1,3 @@
-// Live job state for one project (GET /projects/{id}/events). One stream feeds every clip tile and the export dialog.
-// The server sends the full state each time a stream opens, so a reconnect starts again from what it sends.
 import { useEffect, useMemo, useState } from 'react';
 import { endpoints } from '@core/http/endpoints.js';
 import { openEventStream } from '@core/http/eventStream.js';

@@ -1,7 +1,6 @@
 import { cx } from '@shared/utils/classNames.js';
 import { useEditor } from './editorContext.js';
 
-// The top bar's save state (guide 8.9). An edit waiting out the 800 ms counts as saving.
 export default function SaveState() {
   const { state } = useEditor();
   const waiting = state.changeCount !== state.savedChangeCount;

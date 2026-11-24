@@ -1,13 +1,4 @@
-// Whether Dettavo is installed, and whether this window is the installed app, from Ahorra.
-// Display mode alone cannot decide it:
-//   - Chrome reports 'fullscreen' for an ordinary browser tab while the browser is in full screen, and also for the
-//     installed app's own window while that window is in full screen. So 'fullscreen' counts only on a Mac that is
-//     known to have the app (the flag below).
-//   - The browser's own installed-apps answer (detectInstalledApp) is asked once per page load, and only Chrome and
-//     Edge can answer it (manifest.json lists the app under related_applications for this).
-// The flag is written when the app is seen to be installed (the appinstalled event, an installed display mode, or the
-// browser's own answer). It is read only for the full-screen case, so uninstalling the app and opening a plain tab
-// offers the install again.
+
 let installedInBrowser = false;
 
 const ASK_TIMEOUT_MS = 2000;

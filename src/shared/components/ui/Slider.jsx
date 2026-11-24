@@ -1,6 +1,5 @@
 import './Slider.css';
 
-// A thin line with a round handle (CapCut style); the part left of the handle is filled. onChange gets the number.
 export default function Slider({ label, min = 0, max = 100, step = 1, value, disabled = false, onChange }) {
   const fill = max > min ? ((value - min) / (max - min)) * 100 : 0;
   return (

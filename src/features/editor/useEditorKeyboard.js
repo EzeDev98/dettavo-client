@@ -2,16 +2,13 @@ import { useEffect, useRef } from 'react';
 import { editedToTimeline, timelineToClip, timelineToEdited } from '@core/edit/timeMap.js';
 import { useEditor } from './editorContext.js';
 
-// ← and → move the playhead one frame (at 30 fps); with Shift, one second.
 const FRAME_MS = 1000 / 30;
 const SECOND_MS = 1000;
 
-// Keys typed into a field, or pressed inside an open dialog, are not the editor's.
 const elsewhere = (target) => target instanceof HTMLElement
   && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) || Boolean(target.closest('[role="dialog"]')));
 
-// Where a step of stepMs from timelineMs lands. With Skip cuts on it is taken in edited time, so stepping back never
-// lands in a cut and bounces forward again. player: the PlaybackEngine.
+
 function stepFrom(player, plan, timelineMs, stepMs) {
   if (!player.skipCuts) return timelineMs + stepMs;
   return editedToTimeline(plan, timelineToEdited(plan, timelineMs) + stepMs)?.timelineMs ?? timelineMs + stepMs;
@@ -33,13 +30,6 @@ function selectionText(tokens, selection, cutIds) {
   return text;
 }
 
-// The editor's keys (guide 8.10): Delete or Backspace removes the selection (or the piece selected on the timeline),
-// ⌘B or Ctrl+B splits the clip at the playhead, Q and W cut that clip left or right of the playhead (CapCut's Delete
-// left and Delete right), ← and → move the playhead a frame (a second with Shift), ⌘Z or Ctrl+Z
-// undoes, ⌘⇧Z, ⌘Y or Ctrl+Y redoes, Escape clears the selection, and Space plays or pauses (not while a button has
-// focus, which Space presses).
-// A key already handled by a menu, a dialog or a field is left alone. ⌘C (or Edit, Copy) copies the selected words.
-// player: the PlaybackEngine.
 export default function useEditorKeyboard(player) {
   const { state, dispatch, cutIds, spans, plan } = useEditor();
   const { tokens, selection } = state;

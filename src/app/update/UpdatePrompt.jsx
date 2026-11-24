@@ -3,8 +3,6 @@ import Modal from '@shared/components/ui/Modal.jsx';
 import Button from '@shared/components/ui/Button.jsx';
 import { appUpdate, CHECK_EVERY_MS, useAppUpdate } from '@core/pwa/appUpdate.js';
 
-// Appears as soon as a newer build is found, and comes back every 3 minutes until the person updates. Projects and
-// edits live in dettavo-server, so the reset loses nothing.
 export default function UpdatePrompt() {
   const { latest } = useAppUpdate();
   const [open, setOpen] = useState(false);

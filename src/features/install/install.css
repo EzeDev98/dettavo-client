@@ -1,6 +1,4 @@
-/* Onboarding, Install and the hand-off (prototype 5f). The frame, cards and banners are shared components. */
 
-/* Onboarding: the logo above the title. */
 .onboarding__logo {
   display: flex;
   align-items: center;

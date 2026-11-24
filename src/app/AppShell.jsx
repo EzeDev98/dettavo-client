@@ -7,10 +7,6 @@ import SetupScreen from '@features/setup/SetupScreen.jsx';
 import { useSystemStatus } from '@features/setup/systemStatus.js';
 import { ROUTES } from '@app/router/routes.js';
 
-// The first-run screen the installed app must show before Home, or null when there is none. The system status
-// decides, in this order (Build Plan 20c; there is no pairing):
-//   server down -> Service down
-//   a tool missing -> Setup; /setup stays on Setup until its Continue
 function firstRunScreen(pathname, { data: status, isPending, isError }) {
   // StartupGate has usually filled the status already; this shows only when it could not wait long enough.
   if (isPending) return <LoadingScreen page />;
@@ -29,7 +25,6 @@ export default function AppShell() {
 
   if (firstRun) return <AppFrame>{firstRun}</AppFrame>;
 
-  // The right side of the status bar (guide 8.9).
   let hint;
   if (pathname === ROUTES.projects) hint = 'Drop a file anywhere to start';
   if (matchPath(ROUTES.project, pathname)) {

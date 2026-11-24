@@ -1,4 +1,3 @@
-/* The slider: a thin line, filled up to a round handle (prototype .zs). --slider-fill is set by Slider.jsx. */
 .ui-slider {
   --slider-track: linear-gradient(
     to right,

@@ -1,4 +1,3 @@
-// A clip's own actions in the Clips tray: start it again after a failure (11b) and delete it (11c).
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { httpClient } from '@core/http/httpClient.js';
 import { endpoints } from '@core/http/endpoints.js';

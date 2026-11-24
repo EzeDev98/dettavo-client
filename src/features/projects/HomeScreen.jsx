@@ -18,8 +18,6 @@ import { addFileErrorMessage, createProjectFromFiles, isMediaFile } from './addF
 import ProjectCard from './ProjectCard.jsx';
 import './home.css';
 
-// Home (Build Plan 9a to 9c, prototype 5a): one Add area that also takes a file dropped anywhere on the page, then
-// the Projects grid, newest first.
 export default function HomeScreen() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -32,7 +30,6 @@ export default function HomeScreen() {
   const rename = useRenameProject();
   const remove = useDeleteProject();
 
-  // 9c: a new project named after the first file, one clip per file, and the editor opens at once.
   const addFiles = async (picked) => {
     if (adding) return;
     const files = picked.filter(isMediaFile);

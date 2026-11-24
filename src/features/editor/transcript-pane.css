@@ -1,5 +1,3 @@
-/* The transcript pane, from the approved prototype: .tpane, .pb, .tx, .para, .w, .gap and .cdiv, then 5e's .prep,
-   .prow and .empty. The pane header is the editor's shared .pane-header. */
 .transcript-pane {
   display: flex;
   flex-direction: column;
@@ -43,7 +41,6 @@
   color: var(--color-text-muted);
 }
 
-/* ---- The transcript (virtual list: rows are placed with translateY and measured, so spacing is padding) */
 /* Selecting is Dettavo's own (the accent), never the browser's text selection: nothing in the transcript can turn blue. */
 .transcript-view {
   flex: 1;
@@ -173,13 +170,11 @@
   color: var(--color-on-selection);
 }
 
-/* The playing word (prototype .w.cur), set by the player outside React. As in the prototype it wins over the rest. */
 .transcript-token.transcript-token--current {
   background: var(--color-current-word);
   color: var(--color-on-selection);
 }
 
-/* ---- The Cuts tab (prototype .row) */
 .cuts-list { max-width: var(--transcript-measure); }
 
 .cuts-list__row {
@@ -208,7 +203,6 @@
   white-space: nowrap;
 }
 
-/* ---- Before a clip is on the timeline (5e) */
 .getting-ready {
   display: grid;
   gap: var(--card-pad);

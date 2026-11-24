@@ -1,10 +1,5 @@
 import { soundMs } from '@core/edit/silences.js';
 
-// The transcript as rows for the virtual list (guide 8.6): a divider with the clip's name before each timeline clip,
-// then its paragraphs. A clip that is not READY shows its state in place of paragraphs; a ready clip with no words
-// says so. Paragraph rows hold token index ranges, so a selection can run across rows and across clip joins.
-// cutIds: the tokens of every cut but a shortened pause. Cut words are not shown (they are listed under Cuts), so a
-// paragraph whose words are all cut has no row, and a clip whose words are all cut says so.
 export function transcriptRows(tokens, spans, cutIds) {
   const rows = [];
   let index = 0;
@@ -54,9 +49,6 @@ export function transcriptRows(tokens, spans, cutIds) {
   return rows;
 }
 
-// How much of each pause a range cut leaves (Cut silences, or a cut made on the timeline), so its chip can show it
-// ("2.1s → 0.3s") like a trimmed pause. tokens: from buildTokens; cuts: plan.cuts. Returns a Map of pause token id to
-// the milliseconds kept, for pauses a range cut shortens but does not take out whole.
 export function shortenedPauses(tokens, cuts) {
   const cutsByClip = new Map();
   cuts.forEach((cut) => {
@@ -80,9 +72,6 @@ export function shortenedPauses(tokens, cuts) {
   return kept;
 }
 
-// Pauses with sound in them that whisper wrote no word for (a repeat or false start it left out). They show as speech
-// chips, so they can be heard, selected and cut like a word. media: from useTimelineMedia. Returns a Map of pause token
-// id to the milliseconds of sound in it, for pauses with at least SPEECH_MIN_MS.
 const SPEECH_MIN_MS = 200;
 export function speechInPauses(tokens, media) {
   const found = new Map();

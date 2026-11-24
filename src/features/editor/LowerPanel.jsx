@@ -25,14 +25,6 @@ const zoomToStep = (pixelsPerSecond, fitPps) => (fitPps >= MAX_PIXELS_PER_SECOND
   : Math.round((Math.log(pixelsPerSecond / fitPps) / Math.log(MAX_PIXELS_PER_SECOND / fitPps)) * ZOOM_STEPS));
 const stepToZoom = (step, fitPps) => fitPps * (MAX_PIXELS_PER_SECOND / fitPps) ** (step / ZOOM_STEPS);
 
-// The editor's lower panel (guide 8.8, prototype .lower): the toolbar, the ruler and the timeline. Split divides the
-// clip under the playhead there (⌘B); Delete left (Q) and Delete right (W) cut that clip from its start to the
-// playhead, or from the playhead to its end; Delete cuts out the piece selected on the timeline, or removes the words
-// selected in the transcript. Original is the length of the timeline clips together; Edited drops by each cut. The
-// zoom buttons zoom by 2× around the playhead (or the middle when it is out of view); the zoom line between them
-// (CapCut style) drags from Fit at the left to the closest zoom at the right; Fit shows the whole timeline.
-// The ruler and the timeline share one time axis: edited time while Skip cuts is on (cut parts take no space),
-// timeline time while it is off.
 export default function LowerPanel({ projectId, onAdd }) {
   const { state, dispatch, spans, plan } = useEditor();
   const player = usePlayer();

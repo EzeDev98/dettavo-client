@@ -1,8 +1,3 @@
-// Silences found in the audio itself (a clip's levels from GET .../media/levels), not in the gaps between whisper's
-// words: whisper often stretches a word over the silence after it, so a long silence can show as a short pause. Pure,
-// no React. The silences become SILENCE range cuts (rule 9), so export cuts exactly what the preview skips.
-
-// Levels are 0 (-60 dB) to 255 (0 dB): one dB is 255 / 60 steps.
 const STEPS_PER_DB = 255 / 60;
 // The quiet threshold sits this share of the way from the noise floor (10th percentile) to speech (90th percentile),
 // and at least MIN_MARGIN_DB above the floor, so a quiet room is never taken for speech.
@@ -82,10 +77,6 @@ export function quietStretches(levels, durationMs) {
   return stretches;
 }
 
-// The silences of every timeline clip whose levels have arrived. spans from timelineSpans; media from
-// useTimelineMedia. A silence longer than longerThanMs is shortened to keepMs, centred like a trimmed pause (rule 3):
-// keepMs is split between its two sides, an odd millisecond after the cut. Returns { cuts: [{ clipId, startMs,
-// endMs }], silentMs (all silence, cut or not), count (silences over longerThanMs), ready (every clip's levels are in) }.
 export function silenceCuts(spans, media, longerThanMs, keepMs) {
   const cuts = [];
   let silentMs = 0;

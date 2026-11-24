@@ -1,6 +1,4 @@
-/* The editor, from the approved prototype's .app, .work and .upper: the top bar, then the two panes side by side
-   over the lower panel, filling the window. The three are floating panels on the canvas with a gap between them
-   (CapCut style). Below 860 px the panes stack and the window scrolls. */
+
 .editor {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -22,8 +20,6 @@
   min-height: 0;
 }
 
-/* One panel: its own surface and rounded corners; children are clipped to the corners. :where() keeps this at zero
-   specificity, so a panel's own file can still set its surface (the lower panel keeps --color-surface). */
 :where(.transcript-pane, .video-pane, .lower-panel) {
   overflow: hidden;
   background: var(--color-bg);
@@ -40,7 +36,6 @@
 
 .editor__muted { color: var(--color-text-muted); }
 
-/* The top bar's save state (guide 8.9): muted, red when a save failed. */
 .save-state { color: var(--color-text-muted); }
 .save-state--error { color: var(--color-error); }
 
@@ -51,7 +46,6 @@
   padding: var(--gutter);
 }
 
-/* The header of both panes (prototype .hd). */
 .pane-header {
   display: flex;
   align-items: center;
@@ -65,8 +59,6 @@
 .pane-header__spacer { flex: 1; }
 .pane-header__muted { color: var(--color-text-muted); }
 
-/* The 3 px clip progress bar (prototype .th .pb and .prow .bar2), shared by the tiles and the "Getting ready" rows.
-   Two classes so it always wins over Bar's own height, colours and corners. The rows' bar keeps rounded ends. */
 .ui-bar.clip-progress {
   height: var(--clip-progress-height);
   background: var(--color-raise);

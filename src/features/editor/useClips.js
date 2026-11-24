@@ -8,9 +8,6 @@ import { clipStatus, isActiveJob } from './clipStatus.js';
 
 const UPLOAD_IN_QUEUE = new Set(['waiting', 'uploading']);
 
-// The open project, and every clip in it as its tile shows it (5d): items is [{ clip, status }] in the order the
-// clips were added. jobs is every job of the project, oldest first, for the export dialog. One event stream feeds every tile. A job or an upload that finishes changes a clip's saved
-// state, so the project is fetched again then; nothing polls.
 export default function useClips(projectId) {
   const queryClient = useQueryClient();
   const project = useProject(projectId);

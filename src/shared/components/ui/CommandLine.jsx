@@ -7,8 +7,6 @@ import IconButton from './IconButton.jsx';
 // How long the copy button shows its tick after copying.
 const COPIED_MS = 1200;
 
-// A Terminal command to copy (prototype .cmd): the command in the monospace face, and a copy button. label: the line
-// above it, if any ("Run this in Terminal, in the dettavo-server folder:").
 export default function CommandLine({ label, command }) {
   const [copied, setCopied] = useState(false);
 

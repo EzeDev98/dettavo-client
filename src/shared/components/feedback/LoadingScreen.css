@@ -1,4 +1,3 @@
-/* From Ahorra. The page colour, continuing the native splash (manifest background_color), so the start never flashes. */
 .loading-screen {
   position: fixed;
   inset: 0;

@@ -2,10 +2,6 @@ import './Button.css';
 import Spinner from './Spinner.jsx';
 import { cx } from '@shared/utils/classNames.js';
 
-// variant: 'primary' | 'secondary' | 'ghost' | 'danger'. size: 'default' (28px) | 'export' (32px: the top bar's
-// Export and the export dialog's buttons).
-// busy keeps the label in place (so the width never changes), shows a spinner and ignores clicks.
-// waiting shows a spinner before the label and disables the button (the first-run screens' block buttons).
 export default function Button({
   variant = 'primary',
   busy = false,

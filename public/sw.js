@@ -1,4 +1,3 @@
-// Dettavo service worker, from Ahorra. It exists for installability, fast launches and updates.
 // It caches only the client's own files: never /api, never media, never anything from dettavo-server.
 //
 // The two markers below are replaced at build time by vite-plugins/dettavoServiceWorker.js.

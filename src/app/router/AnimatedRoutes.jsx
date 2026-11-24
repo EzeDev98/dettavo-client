@@ -9,12 +9,6 @@ const SLIDE_PX = 16;
 
 const slide = (px) => (px ? `translateX(${px}px)` : 'none');
 
-// Screen changes without hard cuts or reloads, from Ahorra: the screen on show fades and slides out (--motion-fast),
-// then the next one fades and slides in (--motion-base). Only one screen exists at a time, so there is no stacking,
-// no doubled scroll and no guard running twice. This is the only place screen changes are animated.
-//   Forward (a link or button): the old screen leaves to the left, the new one arrives from the right.
-//   Back (the browser's back): the other way round. A redirect (replace): a fade with no slide.
-// A screen that renders nothing (a redirect on its way) is swapped at once, with no exit, so redirects add no delay.
 export default function AnimatedRoutes() {
   const location = useLocation();
   const navigationType = useNavigationType();

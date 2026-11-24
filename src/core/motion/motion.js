@@ -1,5 +1,3 @@
-// Runs one animation with the browser's Web Animations API, from Ahorra's motion.js. Durations and easings come from
-// tokens.css, and reduced motion swaps any movement for a short fade.
 import { readTokenMs } from '@shared/utils/cssTime.js';
 
 const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -15,13 +13,6 @@ const toEasing = (ease) =>
     ? getComputedStyle(document.documentElement).getPropertyValue(`--ease-${ease}`).trim()
     : ease;
 
-// Animates `el` through `frames` (Web Animations keyframes). Returns a promise that resolves when the animation ends or
-// is cancelled, so callers can `await run(...)` and then remove the element.
-//   duration  a token name or a number of milliseconds (default 'base')
-//   ease      'standard' | 'out' | any CSS easing (default 'out')
-//   delay     milliseconds
-//   fill      'none' | 'forwards' | 'backwards' | 'both' (use 'forwards' when the element is removed afterwards)
-// Reduced motion: only the opacity of the first and last frame is kept, played over --motion-reduced with no delay.
 export function run(el, frames, { duration = 'base', ease = 'out', delay = 0, fill = 'none' } = {}) {
   let keyframes = frames;
   let ms = toMs(duration);

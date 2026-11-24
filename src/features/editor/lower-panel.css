@@ -1,5 +1,3 @@
-/* The lower panel, from the approved prototype (.lower, .bar, .vsep, .ruler, .wf and .wfe), with a CapCut-style
-   track: filmstrip and waveform inside each block, pieces between splits, and a playhead through ruler and track. */
 .lower-panel {
   background: var(--color-surface);
 }
@@ -39,7 +37,6 @@
   line-height: var(--leading-xs);
 }
 
-/* The ruler keeps its height while hidden, so the timeline never moves (prototype: visibility hidden). */
 .timeline-ruler--hidden { visibility: hidden; }
 
 .timeline-ruler__tick {
@@ -79,8 +76,6 @@
   pointer-events: none;
 }
 
-/* One block per timeline clip (prototype .clip): see-through, so the canvas under it shows its filmstrip and
-   waveform; only its thin outline is drawn over them. */
 .timeline-block {
   position: absolute;
   top: 0;
@@ -131,7 +126,6 @@
   box-shadow: inset 0 0 0 var(--piece-selected-width) var(--color-piece-selected);
 }
 
-/* Cut regions (prototype .seg), the selection (.sband), the drop marker (.ins) and the playhead (.ph). */
 .timeline-cut,
 .timeline-band,
 .timeline-marker,

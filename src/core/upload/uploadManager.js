@@ -1,6 +1,3 @@
-// Uploads every added file to its clip, one after another (guide 5.1). It lives outside the screens, so going back
-// to Home or opening another project does not stop an upload. XMLHttpRequest, not fetch, because only it reports
-// upload progress; the file is streamed by the browser and never read into memory.
 import { useSyncExternalStore } from 'react';
 import { apiUrl } from '@core/http/apiUrl.js';
 import { endpoints } from '@core/http/endpoints.js';

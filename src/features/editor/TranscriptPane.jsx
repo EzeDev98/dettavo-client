@@ -11,8 +11,6 @@ import PauseBar from './PauseBar.jsx';
 import TranscriptView from './TranscriptView.jsx';
 import './transcript-pane.css';
 
-// "3 words · 00:01.4", or "Pause · 00:01.9" when the selection holds no word. The length runs across clip joins.
-// Cut words are not in the transcript, so they are not counted.
 function selectionSummary(tokens, selection, cutIds) {
   if (!selection) return '';
   let words = 0;
@@ -23,9 +21,6 @@ function selectionSummary(tokens, selection, cutIds) {
   return `${words ? `${words} word${words === 1 ? '' : 's'}` : 'Pause'} · ${formatTimecode(lengthMs)}`;
 }
 
-// The editor's left pane (guide 8.6): the header with the Transcript and Cuts tabs, the selection summary, Remove and
-// Restore; the pause bar; the active tab; and the Clips tray at its foot (tray). Until a clip is on the timeline the
-// body says what is happening (prototype 5e).
 export default function TranscriptPane({ items, tray }) {
   const { state, dispatch, plan, cutIds } = useEditor();
   const [tab, setTab] = useState('transcript');

@@ -1,4 +1,3 @@
-// Generates every app icon from the Dettavo logo, from Ahorra's script. Run with: npm run icons
 // Source: assets/icon-source.png, the logo exactly as supplied. It is only read and scaled, never changed.
 // The output goes to public/icons/ and is committed.
 import { existsSync } from 'node:fs';

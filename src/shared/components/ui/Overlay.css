@@ -35,7 +35,6 @@
   transform: none;
 }
 
-/* ---------- Modal: centred ---------- */
 .ui-overlay--modal {
   align-items: center;
   justify-content: center;
@@ -50,7 +49,6 @@
   transform: scale(0.98);
 }
 
-/* ---------- Sheet: rises from the bottom ---------- */
 .ui-overlay--sheet {
   align-items: flex-end;
   justify-content: center;
@@ -66,7 +64,6 @@
   transform: translateY(100%);
 }
 
-/* ---------- Drawer: slides in from the left ---------- */
 .ui-overlay--drawer {
   align-items: stretch;
   justify-content: flex-start;
@@ -84,7 +81,6 @@
   transform: translateX(-100%);
 }
 
-/* ---------- Parts ---------- */
 .ui-overlay__head {
   display: flex;
   flex: none;

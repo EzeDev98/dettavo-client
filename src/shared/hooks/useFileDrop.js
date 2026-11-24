@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 
 const carriesFiles = (event) => Array.from(event.dataTransfer?.types ?? []).includes('Files');
 
-// A file dropped anywhere in the window (prototype 5a and 5b). Returns true while files are being dragged over it,
-// so the screen can light up its drop target. Drags that carry no files (a clip tile, selected text) are ignored.
 export default function useFileDrop(onFiles, { enabled = true } = {}) {
   const [over, setOver] = useState(false);
   const onFilesRef = useRef(onFiles);
@@ -15,8 +13,6 @@ export default function useFileDrop(onFiles, { enabled = true } = {}) {
   useEffect(() => {
     if (!enabled) return undefined;
 
-    // dragenter and dragleave fire for every element the drag crosses, so a count of them tells when it has left
-    // the window.
     let depth = 0;
     const handleEnter = (event) => {
       if (!carriesFiles(event)) return;

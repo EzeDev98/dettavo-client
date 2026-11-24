@@ -1,4 +1,3 @@
-/* The export dialog, from the approved prototype: .modal's summary, .opt rows, .prog and .acts. */
 .export-dialog {
   display: grid;
   gap: var(--card-pad);
@@ -7,7 +6,6 @@
 .export-dialog__muted { color: var(--color-text-muted); }
 .export-dialog__error { color: var(--color-error); }
 
-/* A format row (prototype .opt): 40 px, a thin border, the radio, the label and its note on one line. */
 .ui-choice.export-option {
   align-items: center;
   height: var(--input-height);
@@ -27,7 +25,6 @@
   line-height: var(--leading-sm);
 }
 
-/* The 4 px bar (prototype .prog). */
 .ui-bar.export-dialog__progress {
   background: var(--color-raise);
   border-radius: var(--menu-radius);
